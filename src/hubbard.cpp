@@ -14,12 +14,13 @@ typedef double RealType;
 int main(int argc, char** argv)
 {
 	int opt = 0;
+	SizeType meshTotal = 1000;
 	SizeType tt = 0;
 	RealType tb;
 	RealType ts;
 	RealType mu;
 	RealType U;
-	while ((opt = getopt(argc, argv,"b:t:s:m:U:")) != -1) {
+	while ((opt = getopt(argc, argv,"b:t:s:m:U:M:")) != -1) {
 		switch (opt) {
 		case 'b':
 			tb = atof(optarg);
@@ -36,6 +37,9 @@ int main(int argc, char** argv)
 		case 'U':
 			U = atof(optarg);
 			break;
+		case 'M':
+			meshTotal = atoi(optarg);
+			break;
 		default:
 			printUsage(argv[0]);
 			return 1;
@@ -47,7 +51,7 @@ int main(int argc, char** argv)
 		return 2;
 	}
 
-	BetheAnsatz::GrandPotential<RealType> grandPotential(mu,U);
+	BetheAnsatz::GrandPotential<RealType> grandPotential(mu,U,meshTotal);
 	for (SizeType i = 0; i < tt; ++i) {
 		RealType t = tb + i*ts;
 		RealType omegaValue = grandPotential.at(t);
