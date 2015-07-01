@@ -57,19 +57,28 @@ public:
 	Grounded(RealType U, SizeType meshTotal)
 	    : oneOverPi_(1.0/acos(-1)),
 	      sigma0_(U),
-	      rho0_(meshTotal,-acos(-1),2*acos(-1)/meshTotal)
+	      rho0_(meshTotal,-acos(-1),2*acos(-1)/meshTotal),
+	      kappa0_(meshTotal,-acos(-1),2*acos(-1)/meshTotal)
 	{
-
 		for (SizeType i = 0; i < rho0_.total(); ++i) {
 			RealType k = rho0_.x(i);
-			//IntegrableFunctionType f(sigma0_,k);
 			rho0_[i] = oneOverPi_*(0.5 + U*cos(k)*integralOfSomething(k));
+		}
+
+		for (SizeType i = 0; i < kappa0_.total(); ++i) {
+			RealType k = kappa0_.x(i);
+			kappa0_[i] = 2.0*cos(k)-4*sigma0_.kappa0Part(k);
 		}
 	}
 
 	RealType rho0(SizeType i) const
 	{
 		return rho0_[i];
+	}
+
+	RealType kappa0(SizeType i) const
+	{
+		return kappa0_[i];
 	}
 
 private:
@@ -84,6 +93,7 @@ private:
 	RealType oneOverPi_;
 	SigmaZeroType sigma0_;
 	MeshType rho0_;
+	MeshType kappa0_;
 }; // class Grounded
 } // namespace BetheAnsatz
 
