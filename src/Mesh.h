@@ -12,37 +12,28 @@ public:
 
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 
-	Mesh(SizeType total, RealType start, RealType step) : x_(total), y_(total,0)
+	Mesh(SizeType total, RealType start, RealType step)
+	    : step_(step), data_(total)
 	{
 		for (SizeType i = 0; i < total; ++i) {
-			x_[i] = start + i*step;
+			data_[i] = start + i*step;
 		}
 	}
 
-	SizeType total() const { return x_.size(); }
+	SizeType total() const { return data_.size(); }
+
+	RealType step() const { return step_; }
 
 	const RealType& x(SizeType i) const
 	{
-		assert(i < x_.size());
-		return x_[i];
-	}
-
-	const RealType& operator[](SizeType i) const
-	{
-		assert(i < x_.size());
-		return y_[i];
-	}
-
-	RealType& operator[](SizeType i)
-	{
-		assert(i < x_.size());
-		return y_[i];
+		assert(i < data_.size());
+		return data_[i];
 	}
 
 private:
 
-	VectorRealType x_;
-	VectorRealType y_;
+	RealType step_;
+	VectorRealType data_;
 }; // class GrandPotential
 
 } // namespace BetheAnsatz

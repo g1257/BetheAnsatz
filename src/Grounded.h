@@ -57,18 +57,21 @@ public:
 	Grounded(RealType U, SizeType meshTotal)
 	    : oneOverPi_(1.0/acos(-1)),
 	      sigma0_(U),
-	      rho0_(meshTotal,-acos(-1),2*acos(-1)/meshTotal),
-	      kappa0_(meshTotal,-acos(-1),2*acos(-1)/meshTotal)
+	      kIndex_(meshTotal,-acos(-1),2*acos(-1)/meshTotal),
+	      rho0_(meshTotal,0),
+	      kappa0_(meshTotal,0)
 	{
-		for (SizeType i = 0; i < rho0_.total(); ++i) {
-			RealType k = rho0_.x(i);
+		for (SizeType i = 0; i < kIndex_.total(); ++i) {
+			RealType k = kIndex_.x(i);
 			rho0_[i] = oneOverPi_*(0.5 + U*cos(k)*integralOfSomething(k));
 		}
 
-		for (SizeType i = 0; i < kappa0_.total(); ++i) {
-			RealType k = kappa0_.x(i);
+		for (SizeType i = 0; i < kIndex_.total(); ++i) {
+			RealType k = kIndex_.x(i);
 			kappa0_[i] = 2.0*cos(k)-4*sigma0_.kappa0Part(k);
 		}
+
+		std::cerr<<"Grounded::ctor: done\n";
 	}
 
 	RealType rho0(SizeType i) const
@@ -81,6 +84,10 @@ public:
 		return kappa0_[i];
 	}
 
+	const MeshType& kIndex() const { return kIndex_; }
+
+	const RealType& U() const { return sigma0_.U(); }
+
 private:
 
 	RealType integralOfSomething(RealType k) const
@@ -92,8 +99,9 @@ private:
 
 	RealType oneOverPi_;
 	SigmaZeroType sigma0_;
-	MeshType rho0_;
-	MeshType kappa0_;
+	MeshType kIndex_;
+	VectorRealType rho0_;
+	VectorRealType kappa0_;
 }; // class Grounded
 } // namespace BetheAnsatz
 
