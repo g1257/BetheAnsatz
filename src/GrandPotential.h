@@ -20,6 +20,12 @@ public:
 		return 0.0;
 	}
 
+	// for testing
+	RealType rho0(SizeType i) const
+	{
+		return grounded_.rho0(i);
+	}
+
 private:
 
 	GroundedType grounded_;

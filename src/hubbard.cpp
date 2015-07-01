@@ -52,10 +52,14 @@ int main(int argc, char** argv)
 	}
 
 	BetheAnsatz::GrandPotential<RealType> grandPotential(mu,U,meshTotal);
-	for (SizeType i = 0; i < tt; ++i) {
+	/*for (SizeType i = 0; i < tt; ++i) {
 		RealType t = tb + i*ts;
 		RealType omegaValue = grandPotential.at(t);
 		std::cout<<t<<" "<<omegaValue<<"\n";
+	}*/
+	for (SizeType i = 0; i < meshTotal; ++i) {
+		RealType k = tb + i*ts;
+		std::cout<<k<<" "<<grandPotential.rho0(i)<<"\n";
 	}
 }
 
