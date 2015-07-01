@@ -78,10 +78,7 @@ private:
 	{
 		SomethingIntegrand somethingIntegrand(sigma0_,k);
 		PsimagLite::Integrator<SomethingIntegrand> integrator(somethingIntegrand);
-		VectorRealType pts(2,0);
-		pts[0] = -acos(-1);
-		pts[1] = -pts[0];
-		return integrator(pts);
+		return integrator();
 	}
 
 	RealType oneOverPi_;
