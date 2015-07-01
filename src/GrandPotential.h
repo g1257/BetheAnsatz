@@ -11,24 +11,24 @@ public:
 
 	typedef Grounded<RealType> GroundedType;
 
-	GrandPotential(RealType, RealType U, SizeType meshTotal)
-	    : grounded_(U, meshTotal)
+	GrandPotential(const GroundedType& grounded,
+	               RealType mu,
+	               RealType T,
+	               SizeType meshLambdaTotal)
+	    : grounded_(grounded),mu_(mu),T_(T),meshLambdaTotal_(meshLambdaTotal)
 	{}
 
-	RealType at(RealType)
+	RealType operator()() const
 	{
 		return 0.0;
 	}
 
-	// for testing
-	RealType rho0(SizeType i) const
-	{
-		return grounded_.rho0(i);
-	}
-
 private:
 
-	GroundedType grounded_;
+	const GroundedType& grounded_;
+	RealType mu_;
+    RealType T_;
+    SizeType meshLambdaTotal_;
 }; // class GrandPotential
 
 } // namespace BetheAnsatz

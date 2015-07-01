@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <unistd.h>
 #include "Vector.h"
+#include "Grounded.h"
 #include "GrandPotential.h"
 
 void printUsage(PsimagLite::String prog)
@@ -14,13 +15,14 @@ typedef double RealType;
 int main(int argc, char** argv)
 {
 	int opt = 0;
-	SizeType meshTotal = 1000;
+	SizeType meshKtotal = 1000;
+	SizeType meshLambdaTotal = 10000;
 	SizeType tt = 0;
 	RealType tb;
 	RealType ts;
 	RealType mu;
 	RealType U;
-	while ((opt = getopt(argc, argv,"b:t:s:m:U:M:")) != -1) {
+	while ((opt = getopt(argc, argv,"b:t:s:m:U:K:L:")) != -1) {
 		switch (opt) {
 		case 'b':
 			tb = atof(optarg);
@@ -37,8 +39,11 @@ int main(int argc, char** argv)
 		case 'U':
 			U = atof(optarg);
 			break;
-		case 'M':
-			meshTotal = atoi(optarg);
+		case 'K':
+			meshKtotal = atoi(optarg);
+			break;
+		case 'L':
+			meshLambdaTotal = atoi(optarg);
 			break;
 		default:
 			printUsage(argv[0]);
@@ -51,15 +56,16 @@ int main(int argc, char** argv)
 		return 2;
 	}
 
-	BetheAnsatz::GrandPotential<RealType> grandPotential(mu,U,meshTotal);
-	/*for (SizeType i = 0; i < tt; ++i) {
+	BetheAnsatz::Grounded<RealType> grounded(U,meshKtotal);
+
+	for (SizeType i = 0; i < tt; ++i) {
 		RealType t = tb + i*ts;
-		RealType omegaValue = grandPotential.at(t);
+		BetheAnsatz::GrandPotential<RealType> grandPotential(grounded,
+		                                                     mu,
+		                                                     t,
+		                                                     meshLambdaTotal);
+		RealType omegaValue = grandPotential();
 		std::cout<<t<<" "<<omegaValue<<"\n";
-	}*/
-	for (SizeType i = 0; i < meshTotal; ++i) {
-		RealType k = tb + i*ts;
-		std::cout<<k<<" "<<grandPotential.rho0(i)<<"\n";
 	}
 }
 
