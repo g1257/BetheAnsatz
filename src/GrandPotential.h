@@ -42,12 +42,18 @@ public:
 			bmatrix(1,i) = tmp*tmp;
 		}
 
+		RealType constant2 = -T_*log(bmatrix(1,1));
+
+		std::cerr<<"T="<<T_<<" mu="<<mu_<<"\n";
 		for (SizeType it = 0; it < params.iterations; ++it) {
 			iterate(it,params.nMax,constant,bmatrix);
+			RealType result = updateResult(constant2);
+			if (fabs(result-result_)<1e-6 && it > 0) break;
+			result_ = result;
+			std::cerr<<it<<" "<<result_<<"\n";
 		}
 
-		RealType constant2 = -T_*log(bmatrix(1,1));
-		result_ = updateResult(constant2);
+		std::cerr<<"-------------\n";
 	}
 
 	RealType operator()() const
@@ -102,12 +108,31 @@ private:
 				RealType tmp2 = 0;
 				if (n + 1 < ep_.n_row())
 					tmp2 = (plusOrMinus == 0) ? ep_(n+1,j) : em_(n+1,j);
+				else
+					tmp2 = lastE(lambdaPrime,
+					             (plusOrMinus == 0) ? ep_ : em_);
 
 				sum += s(lambda-lambdaPrime)*(tmp1 + tmp2);
 			}
 
 			E(n,i) = sum * grounded_.lambdaIndex().step();
 		}
+	}
+
+	RealType lastE(SizeType lambda0, const MatrixRealType& e) const
+	{
+		RealType sum = 0.0;
+		SizeType meshTotal = grounded_.lambdaIndex().total();
+		SizeType nMax = e.n_row() - 1;
+		RealType U = grounded_.U();
+		for (SizeType i = 0; i < meshTotal; ++i) {
+			RealType lambda = grounded_.lambdaIndex().x(i);
+			RealType tmp = (lambda - lambda0);
+			RealType factor2 = tmp*tmp + U*U;
+			sum += e(nMax-1,i)*factor2;
+		}
+
+		return sum*U*grounded_.lambdaIndex().step()/M_PI;
 	}
 
 	void updateEfirst(MatrixRealType& E,
@@ -181,8 +206,8 @@ private:
 		}
 
 		sum2 *= grounded_.lambdaIndex().step();
-		// FIXME: ADD e0 here
-		return -(mu_ + sum + sum2);
+
+		return grounded_.e0() - (mu_ + sum + sum2);
 	}
 
 	RealType G(RealType y) const

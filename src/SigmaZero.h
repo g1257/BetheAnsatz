@@ -94,7 +94,7 @@ public:
 		return integrator(pts);
 	}
 
-	RealType kappa0Part(RealType k)
+	RealType kappa0Part(RealType k) const
 	{
 		SigmaZeroIntegrand kappa0Integrand(U_, k, TYPE_KAPPA0);
 		PsimagLite::Integrator<SigmaZeroIntegrand> integrator(kappa0Integrand);
