@@ -76,12 +76,19 @@ public:
 
 	RealType rho0(SizeType i) const
 	{
+		assert(i < rho0_.size());
 		return rho0_[i];
 	}
 
 	RealType kappa0(SizeType i) const
 	{
+		assert(i < kappa0_.size());
 		return kappa0_[i];
+	}
+
+	RealType sigma0(RealType lambda) const
+	{
+		return sigma0_(lambda);
 	}
 
 	const MeshType& kIndex() const { return kIndex_; }

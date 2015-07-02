@@ -26,6 +26,7 @@ public:
 	      T_(T),
 	      result_(0.0),
 	      lambdaMesh_(-infty,meshLambdaTotal,2.0*infty/meshLambdaTotal),
+	      sigma0_(lambdaMesh_.total(),0.0),
 	      Ep_(nMax,meshLambdaTotal),
 	      Em_(nMax,meshLambdaTotal),
 	      ep_(nMax,meshLambdaTotal),
@@ -34,8 +35,23 @@ public:
 	{
 		RealType xplus = (2*grounded.U()-mu)/T;
 		RealType constant = T_*log(cosh(xplus));
-		updateKappa(constant);
-		result_ = updateResult();
+		initSigmaZero();
+		SizeType iterations = 1;
+
+		MatrixRealType bmatrix(2,nMax);
+		for (SizeType i = 0; i < nMax; ++i) {
+			RealType tmp = sinh(xplus)/sinh((i+2)*xplus);
+			bmatrix(0,i) = tmp*tmp;
+			tmp = 1.0/(i+2);
+			bmatrix(1,i) = tmp*tmp;
+		}
+
+		for (SizeType it = 0; it < iterations; ++it) {
+			iterate(it,nMax,constant,bmatrix);
+		}
+
+		RealType constant2 = -T_*log(bmatrix(1,1));
+		result_ = updateResult(constant2);
 	}
 
 	RealType operator()() const
@@ -44,6 +60,33 @@ public:
 	}
 
 private:
+
+	void iterate(SizeType,
+	             SizeType nMax,
+	             RealType constant,
+	             const MatrixRealType& bmatrix)
+	{
+		updateKappa(constant);
+		for (SizeType n = 0; n < nMax; ++n) {
+			updateEpsilon(ep_,bmatrix,0,n);
+			updateEpsilon(em_,bmatrix,1,n);
+		}
+
+	}
+
+	void updateEpsilon(MatrixRealType& epsilon,
+	                   const MatrixRealType& bmatrix,
+	                   SizeType plusOrMinus,
+	                   SizeType n)
+	{
+		RealType b = bmatrix(plusOrMinus,n);
+		RealType oneOverT = 1.0/T_;
+		SizeType meshTotal = lambdaMesh_.total();
+		for (SizeType j = 0; j < meshTotal; ++j) {
+			RealType en = (plusOrMinus == 0) ? Ep_(n,j) : Em_(n,j);
+			epsilon(n,j) = T_*log(b+(1-b)*exp(oneOverT*en));
+		}
+	}
 
 	void updateKappa(RealType constant)
 	{
@@ -61,21 +104,32 @@ private:
 		RealType sink = sin(k);
 		for (SizeType j = 0; j < meshTotal; ++j) {
 			RealType lambda = lambdaMesh_.x(j);
-			sum += s(lambda-sink)*(ep_(1,j)-em_(1,j));
+			sum += s(lambda-sink)*(ep_(0,j)-em_(0,j));
 		}
 
 		return sum*lambdaMesh_.step();
 	}
 
-	RealType updateResult() const
+	RealType updateResult(RealType constant) const
 	{
 		RealType sum = 0.0;
 		SizeType meshTotal = grounded_.kIndex().total();
 		for (SizeType i = 0; i < meshTotal; ++i) {
 			sum += grounded_.rho0(i)*G(kappa_[i]);
 		}
-		// FIXME: ADD MORE
-		return sum*grounded_.kIndex().step();
+
+		sum *= grounded_.kIndex().step();
+
+		RealType sum2 = 0.0;
+		SizeType meshLambdaTotal = lambdaMesh_.total();
+		for (SizeType j = 0; j < meshLambdaTotal; ++j) {
+			RealType tmp = em_(0,j) + constant;
+			sum2 += sigma0_[j]*tmp;
+		}
+
+		sum2 *= lambdaMesh_.step();
+		// FIXME: ADD e0 here
+		return -(mu_ + sum + sum2);
 	}
 
 	RealType G(RealType y) const
@@ -91,11 +145,20 @@ private:
 		return factor1/cosh(factor2*lambda);
 	}
 
+	void initSigmaZero()
+	{
+		SizeType meshLambdaTotal = lambdaMesh_.total();
+		for (SizeType j = 0; j < meshLambdaTotal; ++j) {
+			sigma0_[j] = grounded_.sigma0(lambdaMesh_.x(j));
+		}
+	}
+
 	const GroundedType& grounded_;
 	RealType mu_;
     RealType T_;
 	RealType result_;
 	MeshType lambdaMesh_;
+	VectorRealType sigma0_;
 	MatrixRealType Ep_, Em_, ep_, em_;
 	VectorRealType kappa_;
 }; // class GrandPotential
