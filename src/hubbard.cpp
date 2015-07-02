@@ -43,6 +43,8 @@ int main(int argc, char** argv)
 
 	typedef BetheAnsatz::Parameters<RealType, InputNgType::Readable> ParametersType;
 	ParametersType params(io);
+	std::cerr<<"Echo of Parameters read from "<<filename<<"\n";
+	std::cerr<<params;
 	BetheAnsatz::Grounded<ParametersType> grounded(params);
 
 	RealType mu = 0;
