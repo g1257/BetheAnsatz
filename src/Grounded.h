@@ -61,9 +61,10 @@ public:
 	    : oneOverPi_(1.0/acos(-1)),
 	      sigma0_(U),
 	      kIndex_(meshKtotal,-acos(-1),2*acos(-1)/meshKtotal),
-	      lambdaIndex_(-infty,meshLambdaTotal,2.0*infty/meshLambdaTotal),
-	      rho0_(meshKtotal,0),
-	      kappa0_(meshKtotal,0)
+	      lambdaIndex_(meshLambdaTotal,-infty,2.0*infty/meshLambdaTotal),
+	      rho0_(meshKtotal,0.0),
+	      kappa0_(meshKtotal,0.0),
+	      sigma0vector_(meshLambdaTotal,0.0)
 	{
 		for (SizeType i = 0; i < kIndex_.total(); ++i) {
 			RealType k = kIndex_.x(i);
@@ -75,6 +76,7 @@ public:
 			kappa0_[i] = 2.0*cos(k)-4*sigma0_.kappa0Part(k);
 		}
 
+		initSigmaZeroVector();
 		std::cerr<<"Grounded::ctor: done\n";
 	}
 
@@ -90,9 +92,10 @@ public:
 		return kappa0_[i];
 	}
 
-	RealType sigma0(RealType lambda) const
+	RealType sigma0(SizeType index) const
 	{
-		return sigma0_(lambda);
+		assert(index < sigma0vector_.size());
+		return sigma0vector_[index];
 	}
 
 	const MeshType& kIndex() const { return kIndex_; }
@@ -110,12 +113,21 @@ private:
 		return integrator();
 	}
 
+	void initSigmaZeroVector()
+	{
+		SizeType meshLambdaTotal = lambdaIndex_.total();
+		for (SizeType j = 0; j < meshLambdaTotal; ++j) {
+			sigma0vector_[j] = sigma0_(lambdaIndex_.x(j));
+		}
+	}
+
 	RealType oneOverPi_;
 	SigmaZeroType sigma0_;
 	MeshType kIndex_;
 	MeshType lambdaIndex_;
 	VectorRealType rho0_;
 	VectorRealType kappa0_;
+	VectorRealType sigma0vector_;
 }; // class Grounded
 } // namespace BetheAnsatz
 

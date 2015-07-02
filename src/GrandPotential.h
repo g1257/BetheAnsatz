@@ -23,16 +23,15 @@ public:
 	      mu_(mu),
 	      T_(T),
 	      result_(0.0),
-	      sigma0_(grounded_.lambdaIndex().total(),0.0),
-	      Ep_(nMax,sigma0_.size()),
-	      Em_(nMax,sigma0_.size()),
-	      ep_(nMax,sigma0_.size()),
-	      em_(nMax,sigma0_.size()),
+	      Ep_(nMax,grounded_.lambdaIndex().total()),
+	      Em_(nMax,Em_.n_col()),
+	      ep_(nMax,Em_.n_col()),
+	      em_(nMax,Em_.n_col()),
 	      kappa_(grounded_.kIndex().total(),0.0)
 	{
 		RealType xplus = (2*grounded.U()-mu)/T;
 		RealType constant = T_*log(cosh(xplus));
-		initSigmaZero();
+
 		SizeType iterations = 1;
 
 		MatrixRealType bmatrix(2,nMax);
@@ -178,7 +177,7 @@ private:
 		SizeType meshLambdaTotal = grounded_.lambdaIndex().total();
 		for (SizeType j = 0; j < meshLambdaTotal; ++j) {
 			RealType tmp = em_(0,j) + constant;
-			sum2 += sigma0_[j]*tmp;
+			sum2 += grounded_.sigma0(j)*tmp;
 		}
 
 		sum2 *= grounded_.lambdaIndex().step();
@@ -199,19 +198,10 @@ private:
 		return factor1/cosh(factor2*lambda);
 	}
 
-	void initSigmaZero()
-	{
-		SizeType meshLambdaTotal = grounded_.lambdaIndex().total();
-		for (SizeType j = 0; j < meshLambdaTotal; ++j) {
-			sigma0_[j] = grounded_.sigma0(grounded_.lambdaIndex().x(j));
-		}
-	}
-
 	const GroundedType& grounded_;
 	RealType mu_;
 	RealType T_;
 	RealType result_;
-	VectorRealType sigma0_;
 	MatrixRealType Ep_, Em_, ep_, em_;
 	VectorRealType kappa_;
 }; // class GrandPotential
