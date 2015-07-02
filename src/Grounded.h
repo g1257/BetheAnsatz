@@ -5,9 +5,10 @@
 
 namespace BetheAnsatz {
 
-template<typename RealType_>
+template<typename ParametersType>
 class Grounded {
 
+	typedef typename ParametersType::RealType RealType_;
 	typedef SigmaZero<RealType_> SigmaZeroType;
 	typedef typename SigmaZeroType::VectorRealType VectorRealType;
 
@@ -54,21 +55,20 @@ public:
 	typedef RealType_ RealType;
 	typedef Mesh<RealType> MeshType;
 
-	Grounded(RealType U,
-	         SizeType meshKtotal,
-	         SizeType infty,
-	         SizeType meshLambdaTotal)
+	Grounded(const ParametersType& params)
 	    : oneOverPi_(1.0/acos(-1)),
-	      sigma0_(U),
-	      kIndex_(meshKtotal,-acos(-1),2*acos(-1)/meshKtotal),
-	      lambdaIndex_(meshLambdaTotal,-infty,2.0*infty/meshLambdaTotal),
-	      rho0_(meshKtotal,0.0),
-	      kappa0_(meshKtotal,0.0),
-	      sigma0vector_(meshLambdaTotal,0.0)
+	      sigma0_(params.U),
+	      kIndex_(params.meshKtotal,-acos(-1),2*acos(-1)/params.meshKtotal),
+	      lambdaIndex_(params.meshLambdaTotal,
+	                   -params.infty,
+	                   2.0*params.infty/params.meshLambdaTotal),
+	      rho0_(params.meshKtotal,0.0),
+	      kappa0_(params.meshKtotal,0.0),
+	      sigma0vector_(params.meshLambdaTotal,0.0)
 	{
 		for (SizeType i = 0; i < kIndex_.total(); ++i) {
 			RealType k = kIndex_.x(i);
-			rho0_[i] = oneOverPi_*(0.5 + U*cos(k)*integralOfSomething(k));
+			rho0_[i] = oneOverPi_*(0.5 + params.U*cos(k)*integralOfSomething(k));
 		}
 
 		for (SizeType i = 0; i < kIndex_.total(); ++i) {

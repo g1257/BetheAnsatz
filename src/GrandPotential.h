@@ -5,45 +5,45 @@
 
 namespace BetheAnsatz {
 
-template<typename RealType>
+template<typename ParametersType>
 class GrandPotential {
+
+	typedef typename ParametersType::RealType RealType;
 
 public:
 
-	typedef Grounded<RealType> GroundedType;
+	typedef Grounded<ParametersType> GroundedType;
 	typedef typename GroundedType::MeshType MeshType;
 	typedef typename MeshType::VectorRealType VectorRealType;
 	typedef PsimagLite::Matrix<RealType> MatrixRealType;
 
-	GrandPotential(const GroundedType& grounded,
+	GrandPotential(const ParametersType& params,
+	               const GroundedType& grounded,
 	               RealType mu,
-	               RealType T,
-	               SizeType nMax)
+	               RealType T)
 	    : grounded_(grounded),
 	      mu_(mu),
 	      T_(T),
 	      result_(0.0),
-	      Ep_(nMax,grounded_.lambdaIndex().total()),
-	      Em_(nMax,Em_.n_col()),
-	      ep_(nMax,Em_.n_col()),
-	      em_(nMax,Em_.n_col()),
+	      Ep_(params.nMax,grounded_.lambdaIndex().total()),
+	      Em_(params.nMax,Em_.n_col()),
+	      ep_(params.nMax,Em_.n_col()),
+	      em_(params.nMax,Em_.n_col()),
 	      kappa_(grounded_.kIndex().total(),0.0)
 	{
-		RealType xplus = (2*grounded.U()-mu)/T;
+		RealType xplus = (2*grounded.U()-mu_)/T_;
 		RealType constant = T_*log(cosh(xplus));
 
-		SizeType iterations = 1;
-
-		MatrixRealType bmatrix(2,nMax);
-		for (SizeType i = 0; i < nMax; ++i) {
+		MatrixRealType bmatrix(2,params.nMax);
+		for (SizeType i = 0; i < params.nMax; ++i) {
 			RealType tmp = sinh(xplus)/sinh((i+2)*xplus);
 			bmatrix(0,i) = tmp*tmp;
 			tmp = 1.0/(i+2);
 			bmatrix(1,i) = tmp*tmp;
 		}
 
-		for (SizeType it = 0; it < iterations; ++it) {
-			iterate(it,nMax,constant,bmatrix);
+		for (SizeType it = 0; it < params.iterations; ++it) {
+			iterate(it,params.nMax,constant,bmatrix);
 		}
 
 		RealType constant2 = -T_*log(bmatrix(1,1));
