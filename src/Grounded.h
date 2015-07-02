@@ -54,12 +54,16 @@ public:
 	typedef RealType_ RealType;
 	typedef Mesh<RealType> MeshType;
 
-	Grounded(RealType U, SizeType meshTotal)
+	Grounded(RealType U,
+	         SizeType meshKtotal,
+	         SizeType infty,
+	         SizeType meshLambdaTotal)
 	    : oneOverPi_(1.0/acos(-1)),
 	      sigma0_(U),
-	      kIndex_(meshTotal,-acos(-1),2*acos(-1)/meshTotal),
-	      rho0_(meshTotal,0),
-	      kappa0_(meshTotal,0)
+	      kIndex_(meshKtotal,-acos(-1),2*acos(-1)/meshKtotal),
+	      lambdaIndex_(-infty,meshLambdaTotal,2.0*infty/meshLambdaTotal),
+	      rho0_(meshKtotal,0),
+	      kappa0_(meshKtotal,0)
 	{
 		for (SizeType i = 0; i < kIndex_.total(); ++i) {
 			RealType k = kIndex_.x(i);
@@ -93,6 +97,8 @@ public:
 
 	const MeshType& kIndex() const { return kIndex_; }
 
+	const MeshType& lambdaIndex() const { return lambdaIndex_; }
+
 	const RealType& U() const { return sigma0_.U(); }
 
 private:
@@ -107,6 +113,7 @@ private:
 	RealType oneOverPi_;
 	SigmaZeroType sigma0_;
 	MeshType kIndex_;
+	MeshType lambdaIndex_;
 	VectorRealType rho0_;
 	VectorRealType kappa0_;
 }; // class Grounded

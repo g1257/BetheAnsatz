@@ -64,15 +64,13 @@ int main(int argc, char** argv)
 		return 2;
 	}
 
-	BetheAnsatz::Grounded<RealType> grounded(U,meshKtotal);
+	BetheAnsatz::Grounded<RealType> grounded(U,meshKtotal,infty,meshLambdaTotal);
 
 	for (SizeType i = 0; i < tt; ++i) {
 		RealType t = tb + i*ts;
 		BetheAnsatz::GrandPotential<RealType> grandPotential(grounded,
 		                                                     mu,
 		                                                     t,
-		                                                     infty,
-		                                                     meshLambdaTotal,
 		                                                     nMax);
 		RealType omegaValue = grandPotential();
 		std::cout<<t<<" "<<omegaValue<<"\n";

@@ -18,19 +18,16 @@ public:
 	GrandPotential(const GroundedType& grounded,
 	               RealType mu,
 	               RealType T,
-	               RealType infty,
-	               SizeType meshLambdaTotal,
 	               SizeType nMax)
 	    : grounded_(grounded),
 	      mu_(mu),
 	      T_(T),
 	      result_(0.0),
-	      lambdaMesh_(-infty,meshLambdaTotal,2.0*infty/meshLambdaTotal),
-	      sigma0_(lambdaMesh_.total(),0.0),
-	      Ep_(nMax,meshLambdaTotal),
-	      Em_(nMax,meshLambdaTotal),
-	      ep_(nMax,meshLambdaTotal),
-	      em_(nMax,meshLambdaTotal),
+	      sigma0_(grounded_.lambdaIndex().total(),0.0),
+	      Ep_(nMax,sigma0_.size()),
+	      Em_(nMax,sigma0_.size()),
+	      ep_(nMax,sigma0_.size()),
+	      em_(nMax,sigma0_.size()),
 	      kappa_(grounded_.kIndex().total(),0.0)
 	{
 		RealType xplus = (2*grounded.U()-mu)/T;
@@ -83,7 +80,7 @@ private:
 	{
 		RealType b = bmatrix(plusOrMinus,n);
 		RealType oneOverT = 1.0/T_;
-		SizeType meshTotal = lambdaMesh_.total();
+		SizeType meshTotal = grounded_.lambdaIndex().total();
 		for (SizeType j = 0; j < meshTotal; ++j) {
 			RealType en = (plusOrMinus == 0) ? Ep_(n,j) : Em_(n,j);
 			epsilon(n,j) = T_*log(b+(1-b)*exp(oneOverT*en));
@@ -96,12 +93,12 @@ private:
 	{
 		if (n == 0) return updateEfirst(E,plusOrMinus);
 
-		SizeType meshTotal = lambdaMesh_.total();
+		SizeType meshTotal = grounded_.lambdaIndex().total();
 		for (SizeType i = 0; i < meshTotal; ++i) {
-			RealType lambda = lambdaMesh_.x(i);
+			RealType lambda = grounded_.lambdaIndex().x(i);
 			RealType sum = 0.0;
 			for (SizeType j = 0; j < meshTotal; ++j) {
-				RealType lambdaPrime = lambdaMesh_.x(j);
+				RealType lambdaPrime = grounded_.lambdaIndex().x(j);
 				RealType tmp1 = (plusOrMinus == 0) ? ep_(n-1,j) : em_(n-1,j);
 				RealType tmp2 = 0;
 				if (n + 1 < ep_.n_row())
@@ -110,28 +107,28 @@ private:
 				sum += s(lambda-lambdaPrime)*(tmp1 + tmp2);
 			}
 
-			E(n,i) = sum * lambdaMesh_.step();
+			E(n,i) = sum * grounded_.lambdaIndex().step();
 		}
 	}
 
 	void updateEfirst(MatrixRealType& E,
 	                  SizeType plusOrMinus)
 	{
-		SizeType meshTotal = lambdaMesh_.total();
+		SizeType meshTotal = grounded_.lambdaIndex().total();
 		SizeType meshKtotal = grounded_.kIndex().total();
 		RealType pm = (plusOrMinus == 0) ? 1.0 : -1.0;
 
 		for (SizeType i = 0; i < meshTotal; ++i) {
-			RealType lambda = lambdaMesh_.x(i);
+			RealType lambda = grounded_.lambdaIndex().x(i);
 			RealType sum = 0.0;
 			for (SizeType j = 0; j < meshTotal; ++j) {
-				RealType lambdaPrime = lambdaMesh_.x(j);
+				RealType lambdaPrime = grounded_.lambdaIndex().x(j);
 				RealType tmp = (plusOrMinus == 0) ? ep_(2,j) : em_(2,j);
 
 				sum += s(lambda-lambdaPrime)*tmp;
 			}
 
-			sum *= lambdaMesh_.step();
+			sum *= grounded_.lambdaIndex().step();
 
 			RealType sum2 = 0.0;
 			for (SizeType j = 0; j < meshKtotal; ++j) {
@@ -155,16 +152,16 @@ private:
 
 	RealType equation2point3(SizeType ind) const
 	{
-		SizeType meshTotal = lambdaMesh_.total();
+		SizeType meshTotal = grounded_.lambdaIndex().total();
 		RealType sum = 0.0;
 		RealType k = grounded_.kIndex().x(ind);
 		RealType sink = sin(k);
 		for (SizeType j = 0; j < meshTotal; ++j) {
-			RealType lambda = lambdaMesh_.x(j);
+			RealType lambda = grounded_.lambdaIndex().x(j);
 			sum += s(lambda-sink)*(ep_(0,j)-em_(0,j));
 		}
 
-		return sum*lambdaMesh_.step();
+		return sum*grounded_.lambdaIndex().step();
 	}
 
 	RealType updateResult(RealType constant) const
@@ -178,13 +175,13 @@ private:
 		sum *= grounded_.kIndex().step();
 
 		RealType sum2 = 0.0;
-		SizeType meshLambdaTotal = lambdaMesh_.total();
+		SizeType meshLambdaTotal = grounded_.lambdaIndex().total();
 		for (SizeType j = 0; j < meshLambdaTotal; ++j) {
 			RealType tmp = em_(0,j) + constant;
 			sum2 += sigma0_[j]*tmp;
 		}
 
-		sum2 *= lambdaMesh_.step();
+		sum2 *= grounded_.lambdaIndex().step();
 		// FIXME: ADD e0 here
 		return -(mu_ + sum + sum2);
 	}
@@ -204,9 +201,9 @@ private:
 
 	void initSigmaZero()
 	{
-		SizeType meshLambdaTotal = lambdaMesh_.total();
+		SizeType meshLambdaTotal = grounded_.lambdaIndex().total();
 		for (SizeType j = 0; j < meshLambdaTotal; ++j) {
-			sigma0_[j] = grounded_.sigma0(lambdaMesh_.x(j));
+			sigma0_[j] = grounded_.sigma0(grounded_.lambdaIndex().x(j));
 		}
 	}
 
@@ -214,7 +211,6 @@ private:
 	RealType mu_;
 	RealType T_;
 	RealType result_;
-	MeshType lambdaMesh_;
 	VectorRealType sigma0_;
 	MatrixRealType Ep_, Em_, ep_, em_;
 	VectorRealType kappa_;
