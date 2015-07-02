@@ -47,15 +47,21 @@ int main(int argc, char** argv)
 	std::cerr<<params;
 	BetheAnsatz::Grounded<ParametersType> grounded(params);
 
-	RealType mu = 0;
+	RealType ts = (params.te - params.tb)/params.tt;
+	RealType ms = (params.me - params.mb)/params.mt;
 	for (SizeType i = 0; i < params.tt; ++i) {
-		RealType t = params.tb + i*params.ts;
-		BetheAnsatz::GrandPotential<ParametersType> grandPotential(params,
-		                                                           grounded,
-		                                                           mu,
-		                                                           t);
-		RealType omegaValue = grandPotential();
-		std::cout<<t<<" "<<omegaValue<<"\n";
+		RealType t = params.tb + i*ts;
+		for (SizeType j = 0; j < params.mt; ++j) {
+			RealType mu = params.mb + i*ms;
+			BetheAnsatz::GrandPotential<ParametersType> grandPotential(params,
+			                                                           grounded,
+			                                                           mu,
+			                                                           t);
+			RealType omegaValue = grandPotential();
+			std::cout<<omegaValue<<" ";
+		}
+
+		std::cout<<"\n";
 	}
 }
 

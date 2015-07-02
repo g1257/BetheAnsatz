@@ -17,14 +17,17 @@ struct Parameters {
 	      iterations(1),
 	      infty(1e6),
 	      tb(0.0),
-	      ts(0.0),
+	      te(0.0),
 	      U(0.0)
 	{
 		io.readline(nMax,"Nmax=");
 		io.readline(tt,"TemperatureTotal=");
+		io.readline(mt,"MuTotal=");
 		io.readline(iterations,"Iterations=");
 		io.readline(tb,"TemperatureBegin=");
-		io.readline(ts,"TemperatureStep=");
+		io.readline(te,"TemperatureEnd=");
+		io.readline(mb,"MuBegin=");
+		io.readline(me,"MuEnd=");
 		io.readline(U,"U=");
 
 		try {
@@ -44,10 +47,13 @@ struct Parameters {
 	SizeType meshLambdaTotal;
 	SizeType nMax;
 	SizeType tt;
+	SizeType mt;
 	SizeType iterations;
 	RealType infty;
 	RealType tb;
-	RealType ts;
+	RealType te;
+	RealType mb;
+	RealType me;
 	RealType U;
 }; // struct Parameters
 
@@ -58,10 +64,13 @@ std::ostream& operator<<(std::ostream& os, const Parameters<T1,T2>& params)
 	os<<"MeshLambdaTotal="<<params.meshLambdaTotal<<"\n";
 	os<<"Nmax="<<params.nMax<<"\n";
 	os<<"TemperatureTotal="<<params.tt<<"\n";
+	os<<"MuTotal="<<params.mt<<"\n";
 	os<<"Iterations="<<params.iterations<<"\n";
 	os<<"Infty="<<params.infty<<"\n";
 	os<<"TemperatureBegin="<<params.tb<<"\n";
-	os<<"TemperatureStep="<<params.ts<<"\n";
+	os<<"TemperatureEnd="<<params.te<<"\n";
+	os<<"MuBegin="<<params.mb<<"\n";
+	os<<"MuEnd="<<params.me<<"\n";
 	os<<"U="<<params.U<<"\n";
 
 	return os;
