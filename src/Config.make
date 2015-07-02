@@ -15,19 +15,19 @@ LDFLAGS += /usr/lib64/liblapack.so.3 /usr/lib64/libblas.so.3
 
 # Here add -lpthread if threading is needed and also 
 # set -DUSE_PTHREADS below
-#LDFLAGS += -lpthread
+LDFLAGS += -lpthread
 
 # Enable pthreads
-#CPPFLAGS += -DUSE_PTHREADS
+CPPFLAGS += -DUSE_PTHREADS
 
 # Enable warnings and treat warnings as errors
 CPPFLAGS += -Wall -Werror
 
 # This disables debugging
-CPPFLAGS += -DNDEBUG
+#CPPFLAGS += -DNDEBUG
 
 # Optimization level here
-CPPFLAGS += -O3
+#CPPFLAGS += -O3
 
 # This enables partial debugging (make sure to comment out previous line)
 CPPFLAGS += -Wextra -g3
