@@ -26,9 +26,9 @@ public:
 	      T_(T),
 	      result_(0.0),
 	      Ep_(params.nMax,grounded_.lambdaIndex().total()),
-	      Em_(params.nMax,Em_.n_col()),
-	      ep_(params.nMax,Em_.n_col()),
-	      em_(params.nMax,Em_.n_col()),
+	      Em_(params.nMax,Ep_.n_col()),
+	      ep_(params.nMax,Ep_.n_col()),
+	      em_(params.nMax,Ep_.n_col()),
 	      kappa_(grounded_.kIndex().total(),0.0)
 	{
 		RealType xplus = (2*grounded.U()-mu_)/T_;
