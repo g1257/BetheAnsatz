@@ -70,6 +70,8 @@ private:
 		for (SizeType n = 0; n < nMax; ++n) {
 			updateEpsilon(ep_,bmatrix,0,n);
 			updateEpsilon(em_,bmatrix,1,n);
+			updateE(Ep_,0,n);
+			updateE(Em_,1,n);
 		}
 
 	}
@@ -85,6 +87,61 @@ private:
 		for (SizeType j = 0; j < meshTotal; ++j) {
 			RealType en = (plusOrMinus == 0) ? Ep_(n,j) : Em_(n,j);
 			epsilon(n,j) = T_*log(b+(1-b)*exp(oneOverT*en));
+		}
+	}
+
+	void updateE(MatrixRealType& E,
+	             SizeType plusOrMinus,
+	             SizeType n)
+	{
+		if (n == 0) return updateEfirst(E,plusOrMinus);
+
+		SizeType meshTotal = lambdaMesh_.total();
+		for (SizeType i = 0; i < meshTotal; ++i) {
+			RealType lambda = lambdaMesh_.x(i);
+			RealType sum = 0.0;
+			for (SizeType j = 0; j < meshTotal; ++j) {
+				RealType lambdaPrime = lambdaMesh_.x(j);
+				RealType tmp1 = (plusOrMinus == 0) ? ep_(n-1,j) : em_(n-1,j);
+				RealType tmp2 = 0;
+				if (n + 1 < ep_.n_row())
+					tmp2 = (plusOrMinus == 0) ? ep_(n+1,j) : em_(n+1,j);
+
+				sum += s(lambda-lambdaPrime)*(tmp1 + tmp2);
+			}
+
+			E(n,i) = sum * lambdaMesh_.step();
+		}
+	}
+
+	void updateEfirst(MatrixRealType& E,
+	                  SizeType plusOrMinus)
+	{
+		SizeType meshTotal = lambdaMesh_.total();
+		SizeType meshKtotal = grounded_.kIndex().total();
+		RealType pm = (plusOrMinus == 0) ? 1.0 : -1.0;
+
+		for (SizeType i = 0; i < meshTotal; ++i) {
+			RealType lambda = lambdaMesh_.x(i);
+			RealType sum = 0.0;
+			for (SizeType j = 0; j < meshTotal; ++j) {
+				RealType lambdaPrime = lambdaMesh_.x(j);
+				RealType tmp = (plusOrMinus == 0) ? ep_(2,j) : em_(2,j);
+
+				sum += s(lambda-lambdaPrime)*tmp;
+			}
+
+			sum *= lambdaMesh_.step();
+
+			RealType sum2 = 0.0;
+			for (SizeType j = 0; j < meshKtotal; ++j) {
+				RealType k = grounded_.kIndex().x(j);
+				sum2 += cos(k)*s(lambda-sin(k))*G(pm*kappa_[j]);
+			}
+
+			sum2 *= grounded_.kIndex().step();
+
+			E(0,i) = sum - sum2;
 		}
 	}
 
@@ -155,7 +212,7 @@ private:
 
 	const GroundedType& grounded_;
 	RealType mu_;
-    RealType T_;
+	RealType T_;
 	RealType result_;
 	MeshType lambdaMesh_;
 	VectorRealType sigma0_;
