@@ -8,6 +8,7 @@
 #include "Parameters.h"
 #include "Concurrency.h"
 #include "Parallelizer.h"
+#include "TypeToString.h"
 
 template<typename ParametersType, typename GroundedType>
 class ParallelTemperature {
@@ -34,15 +35,25 @@ public:
 			SizeType i = threadNum*blockSize + p;
 			if (i >= total) break;
 			RealType t = params_.tb + i*ts;
+			PsimagLite::String name = params_.logroot + ttos(i) + ".txt";
+			std::ofstream fout(name.c_str());
 			for (SizeType j = 0; j < params_.mt; ++j) {
 				RealType mu = params_.mb + i*ms;
 				BetheAnsatz::GrandPotential<ParametersType> grandPotential(params_,
 				                                                           grounded_,
 				                                                           mu,
-				                                                           t);
+				                                                           t,
+				                                                           fout);
 				omegaValue_(i,j) = grandPotential();
 			}
+
+			fout.close();
 		}
+	}
+
+	void print(std::ostream& os) const
+	{
+		os<<omegaValue_;
 	}
 
 private:
@@ -69,7 +80,7 @@ int main(int argc, char** argv)
 	PsimagLite::String usage(argv[0]);
 	usage += " -f filename [-t threads]\n";
 
-	while ((opt = getopt(argc, argv,"f:")) != -1) {
+	while ((opt = getopt(argc, argv,"f:t:")) != -1) {
 		switch (opt) {
 		case 'f':
 			filename = optarg;
@@ -104,6 +115,8 @@ int main(int argc, char** argv)
 	ParallelTemperatureType parallelTemperature(params,grounded);
 
 	threadObject.loopCreate(params.tt,parallelTemperature);
+
+	parallelTemperature.print(std::cout);
 }
 
 

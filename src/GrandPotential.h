@@ -20,7 +20,8 @@ public:
 	GrandPotential(const ParametersType& params,
 	               const GroundedType& grounded,
 	               RealType mu,
-	               RealType T)
+	               RealType T,
+	               std::ostream& clog)
 	    : grounded_(grounded),
 	      mu_(mu),
 	      T_(T),
@@ -44,16 +45,16 @@ public:
 
 		RealType constant2 = -T_*log(bmatrix(1,1));
 
-		std::cerr<<"T="<<T_<<" mu="<<mu_<<"\n";
+		clog<<"T="<<T_<<" mu="<<mu_<<"\n";
 		for (SizeType it = 0; it < params.iterations; ++it) {
 			iterate(it,params.nMax,constant,bmatrix);
 			RealType result = updateResult(constant2);
 			if (fabs(result-result_)<1e-6 && it > 0) break;
 			result_ = result;
-			std::cerr<<it<<" "<<result_<<"\n";
+			clog<<it<<" "<<result_<<"\n";
 		}
 
-		std::cerr<<"-------------\n";
+		clog<<"-------------\n";
 	}
 
 	RealType operator()() const

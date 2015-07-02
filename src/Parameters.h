@@ -18,7 +18,8 @@ struct Parameters {
 	      infty(1e6),
 	      tb(0.0),
 	      te(0.0),
-	      U(0.0)
+	      U(0.0),
+	      logroot("ba")
 	{
 		io.readline(nMax,"Nmax=");
 		io.readline(tt,"TemperatureTotal=");
@@ -41,6 +42,10 @@ struct Parameters {
 		try {
 			io.readline(infty,"Infty=");
 		} catch (std::exception&) {}
+
+		try {
+			io.readline(logroot,"LogRoot=");
+		} catch (std::exception&) {}
 	}
 
 	SizeType meshKtotal;
@@ -55,6 +60,7 @@ struct Parameters {
 	RealType mb;
 	RealType me;
 	RealType U;
+	PsimagLite::String logroot;
 }; // struct Parameters
 
 template<typename T1, typename T2>
@@ -72,6 +78,7 @@ std::ostream& operator<<(std::ostream& os, const Parameters<T1,T2>& params)
 	os<<"MuBegin="<<params.mb<<"\n";
 	os<<"MuEnd="<<params.me<<"\n";
 	os<<"U="<<params.U<<"\n";
+	os<<"LogRoot="<<params.logroot<<"\n";
 
 	return os;
 }
