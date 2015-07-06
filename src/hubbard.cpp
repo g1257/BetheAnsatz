@@ -19,9 +19,15 @@ class ParallelTemperature {
 public:
 
 	ParallelTemperature(const ParametersType& params,
-	                    const GroundedType& grounded)
+	                    const GroundedType& grounded,
+	                    SizeType threads)
 	    : params_(params), grounded_(grounded), omegaValue_(params.tt, params.mt)
-	{}
+	{
+		for (SizeType i = 0; i < threads; ++i) {
+			PsimagLite::String name = filenameForThread(i);
+			unlink(name.c_str());
+		}
+	}
 
 	void thread_function_(SizeType threadNum,
 	                      SizeType blockSize,
@@ -31,12 +37,12 @@ public:
 		RealType ts = (params_.te - params_.tb)/params_.tt;
 		RealType ms = (params_.me - params_.mb)/params_.mt;
 
+		PsimagLite::String name = filenameForThread(threadNum);
+		std::ofstream fout(name.c_str(),std::ios::app);
 		for (SizeType p = 0; p < blockSize; p++) {
 			SizeType i = threadNum*blockSize + p;
 			if (i >= total) break;
 			RealType t = params_.tb + i*ts;
-			PsimagLite::String name = params_.logroot + ttos(i) + ".txt";
-			std::ofstream fout(name.c_str());
 			for (SizeType j = 0; j < params_.mt; ++j) {
 				RealType mu = params_.mb + i*ms;
 				BetheAnsatz::GrandPotential<ParametersType> grandPotential(params_,
@@ -47,8 +53,9 @@ public:
 				omegaValue_(i,j) = grandPotential();
 			}
 
-			fout.close();
 		}
+
+		fout.close();
 	}
 
 	void print(std::ostream& os) const
@@ -57,6 +64,11 @@ public:
 	}
 
 private:
+
+	PsimagLite::String filenameForThread(SizeType thread) const
+	{
+		return params_.logroot + ttos(thread) + ".txt";
+	}
 
 	const ParametersType& params_;
 	const GroundedType& grounded_;
@@ -107,12 +119,13 @@ int main(int argc, char** argv)
 	ParametersType params(io);
 	std::cerr<<"Echo of Parameters read from "<<filename<<"\n";
 	std::cerr<<params;
+	std::cerr<<"Threads="<<PsimagLite::Concurrency::npthreads<<"\n";
 
 	GroundedType grounded(params);
 
 	ParallelizerType threadObject(PsimagLite::Concurrency::npthreads,
 	                              PsimagLite::MPI::COMM_WORLD);
-	ParallelTemperatureType parallelTemperature(params,grounded);
+	ParallelTemperatureType parallelTemperature(params,grounded,nthreads);
 
 	threadObject.loopCreate(params.tt,parallelTemperature);
 
