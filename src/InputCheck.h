@@ -2,6 +2,7 @@
 #define BETHE_INPUT_CHECK_H
 #include <vector>
 #include <stdexcept>
+#include "Vector.h"
 
 namespace BetheAnsatz {
 
@@ -19,8 +20,16 @@ public:
 	void check(const PsimagLite::String&, const PsimagLite::String&, SizeType)
 	{}
 
+
+
+	void usageMain(const PsimagLite::String& name) const
+	{
+		std::cerr<<"USAGE: "<<name<<"\n";
+	}
+
 	void checkForThreads(SizeType nthreads) const
 	{
+#ifndef USE_PTHREADS
 		if (nthreads==1) return;
 
 		PsimagLite::String message1(__FILE__);
@@ -31,11 +40,7 @@ public:
 		message1 += " add -DUSE_PTHREADS to the CPP_FLAGS in your Makefile ";
 		message1 += "and recompile\n";
 		throw PsimagLite::RuntimeError(message1.c_str());
-	}
-
-	void usageMain(const PsimagLite::String& name) const
-	{
-		std::cerr<<"USAGE: "<<name<<"\n";
+#endif
 	}
 
 private:

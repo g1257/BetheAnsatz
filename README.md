@@ -1,6 +1,3 @@
-# BetheAnsatz
-Bethe Ansatz for models of strongly correlated electrons, such as the Hubbard model
-
 # Quick Start
  
 # Disclaimer and Licensing
@@ -21,7 +18,7 @@ file COPYING.
 
 # Please cite this work
 
-BetheAnsatz is a free and open source spin-wave code.
+BetheAnsatz is a free and open source Bethe ansatz code.
 The full software license for BetheAnsatz version 0.1
 can be found in
 file COPYING. 

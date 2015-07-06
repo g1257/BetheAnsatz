@@ -120,6 +120,7 @@ int main(int argc, char** argv)
 	std::cerr<<"Echo of Parameters read from "<<filename<<"\n";
 	std::cerr<<params;
 	std::cerr<<"Threads="<<PsimagLite::Concurrency::npthreads<<"\n";
+	inputCheck.checkForThreads(PsimagLite::Concurrency::npthreads);
 
 	GroundedType grounded(params);
 
