@@ -128,30 +128,13 @@ private:
 				if (n + 1 < ep_.n_row())
 					tmp2 = (plusOrMinus == 0) ? ep_(n+1,j) : em_(n+1,j);
 				else
-					tmp2 = lastE(lambdaPrime,
-					             (plusOrMinus == 0) ? ep_ : em_);
+					tmp2 = 0.0;
 
 				sum += s(lambda-lambdaPrime)*(tmp1 + tmp2);
 			}
 
 			E(n,i) = sum * grounded_.lambdaIndex().step();
 		}
-	}
-
-	RealType lastE(SizeType lambda0, const MatrixRealType& e) const
-	{
-		RealType sum = 0.0;
-		SizeType meshTotal = grounded_.lambdaIndex().total();
-		SizeType nMax = e.n_row() - 1;
-		RealType U = grounded_.U();
-		for (SizeType i = 0; i < meshTotal; ++i) {
-			RealType lambda = grounded_.lambdaIndex().x(i);
-			RealType tmp = (lambda - lambda0);
-			RealType factor2 = tmp*tmp + U*U;
-			sum += e(nMax-1,i)*factor2;
-		}
-
-		return sum*U*grounded_.lambdaIndex().step()/M_PI;
 	}
 
 	void updateEfirst(MatrixRealType& E,
@@ -166,7 +149,7 @@ private:
 			RealType sum = 0.0;
 			for (SizeType j = 0; j < meshTotal; ++j) {
 				RealType lambdaPrime = grounded_.lambdaIndex().x(j);
-				RealType tmp = (plusOrMinus == 0) ? ep_(2,j) : em_(2,j);
+				RealType tmp = (plusOrMinus == 0) ? ep_(1,j) : em_(1,j);
 
 				sum += s(lambda-lambdaPrime)*tmp;
 			}
