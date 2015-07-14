@@ -61,7 +61,7 @@ public:
 			if (i >= total) break;
 			RealType t = params_.tb + i*ts;
 			for (SizeType j = 0; j < params_.mt; ++j) {
-				RealType mu = params_.mb + i*ms;
+				RealType mu = params_.mb + j*ms;
 				BetheAnsatz::GrandPotential<ParametersType> grandPotential(params_,
 				                                                           grounded_,
 				                                                           mu,
