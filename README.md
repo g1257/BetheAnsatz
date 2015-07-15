@@ -14,14 +14,14 @@ You should have received a copy of the GNU General Public License
 along with BetheAnsatz. If not, see <http://www.gnu.org/licenses/>.
 The full software license for BetheAnsatz version 1.0.0 
 can be found in
-file COPYING. 
+file LICENSE. 
 
 # Please cite this work
 
 BetheAnsatz is a free and open source Bethe ansatz code.
 The full software license for BetheAnsatz version 0.1
 can be found in
-file COPYING. 
+file LICENSE. 
 You are welcomed to use it and publish data 
 obtained with BetheAnsatz. If you do, please cite this
 work. Explain How To Cite This Work. FIXME. TBW.

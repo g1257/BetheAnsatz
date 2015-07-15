@@ -1,0 +1,13 @@
+MeshKtotal=50
+MeshLambdaTotal=100
+Infty=10
+Nmax=30
+U=1
+TemperatureTotal=2
+TemperatureBegin=0.5
+TemperatureEnd=1.0
+Iterations=100
+MuTotal=2
+MuBegin=0.1
+MuEnd=0.2
+
