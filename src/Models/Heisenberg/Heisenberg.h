@@ -18,6 +18,7 @@ along with BetheAnsatz. If not, see <http://www.gnu.org/licenses/>.
 #ifndef BETHE_HEISENBERG_H
 #define BETHE_HEISENBERG_H
 #include "LogEta.h"
+#include "Rho.h"
 
 namespace BetheAnsatz {
 
@@ -25,6 +26,7 @@ template<typename ParametersType>
 class Heisenberg {
 
 	typedef LogEta<ParametersType> LogEtaType;
+	typedef Rho<LogEtaType> RhoType;
 	typedef typename ParametersType::RealType RealType;
 
 public:
@@ -32,12 +34,13 @@ public:
 	Heisenberg(const ParametersType& params,
 	           RealType temperature,
 	           std::ostream& clog)
-	    : logEta_(params,temperature,clog)
+	    : logEta_(params,temperature,clog),rho_(logEta_)
 	{}
 
 private:
 
 	LogEtaType logEta_;
+	RhoType rho_;
 }; // class Heisenberg
 } // namespace BetheAnsatz
 

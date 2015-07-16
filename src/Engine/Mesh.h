@@ -22,11 +22,12 @@ along with BetheAnsatz. If not, see <http://www.gnu.org/licenses/>.
 
 namespace BetheAnsatz {
 
-template<typename RealType>
+template<typename RealType_>
 class Mesh {
 
 public:
 
+	typedef RealType_ RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 
 	Mesh(SizeType total, RealType start, RealType step)
