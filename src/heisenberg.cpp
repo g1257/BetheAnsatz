@@ -18,8 +18,6 @@ along with BetheAnsatz. If not, see <http://www.gnu.org/licenses/>.
 #include <cstdlib>
 #include <unistd.h>
 #include "Vector.h"
-#include "Grounded.h"
-#include "GrandPotential.h"
 #include "InputNg.h"
 #include "InputCheck.h"
 #include "Parameters.h"
@@ -27,18 +25,17 @@ along with BetheAnsatz. If not, see <http://www.gnu.org/licenses/>.
 #include "Parallelizer.h"
 #include "TypeToString.h"
 
-template<typename ParametersType, typename GroundedType>
+template<typename ParametersType>
 class ParallelTemperature {
 
 	typedef typename ParametersType::RealType RealType;
-	typedef PsimagLite::Matrix<RealType> MatrixRealType;
+	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 
 public:
 
 	ParallelTemperature(const ParametersType& params,
-	                    const GroundedType& grounded,
 	                    SizeType threads)
-	    : params_(params), grounded_(grounded), omegaValue_(params.tt, params.mt)
+	    : params_(params), omegaValue_(params.tt)
 	{
 		for (SizeType i = 0; i < threads; ++i) {
 			PsimagLite::String name = filenameForThread(i);
@@ -52,7 +49,6 @@ public:
 	                      PsimagLite::Concurrency::MutexType*)
 	{
 		RealType ts = (params_.te - params_.tb)/params_.tt;
-		RealType ms = (params_.me - params_.mb)/params_.mt;
 
 		PsimagLite::String name = filenameForThread(threadNum);
 		std::ofstream fout(name.c_str(),std::ios::app);
@@ -60,16 +56,7 @@ public:
 			SizeType i = threadNum*blockSize + p;
 			if (i >= total) break;
 			RealType t = params_.tb + i*ts;
-			for (SizeType j = 0; j < params_.mt; ++j) {
-				RealType mu = params_.mb + j*ms;
-				BetheAnsatz::GrandPotential<ParametersType> grandPotential(params_,
-				                                                           grounded_,
-				                                                           mu,
-				                                                           t,
-				                                                           fout);
-				omegaValue_(i,j) = grandPotential();
-			}
-
+			omegaValue_[i] = 0.0;
 		}
 
 		fout.close();
@@ -88,8 +75,7 @@ private:
 	}
 
 	const ParametersType& params_;
-	const GroundedType& grounded_;
-	MatrixRealType omegaValue_;
+	VectorRealType omegaValue_;
 }; // class ParallelTemperature
 
 typedef double RealType;
@@ -98,8 +84,7 @@ typedef PsimagLite::InputNg<BetheAnsatz::InputCheck> InputNgType;
 int main(int argc, char** argv)
 {
 	typedef BetheAnsatz::Parameters<RealType, InputNgType::Readable> ParametersType;
-	typedef BetheAnsatz::Grounded<ParametersType> GroundedType;
-	typedef ParallelTemperature<ParametersType, GroundedType> ParallelTemperatureType;
+	typedef ParallelTemperature<ParametersType> ParallelTemperatureType;
 	typedef PsimagLite::Parallelizer<ParallelTemperatureType> ParallelizerType;
 
 	int opt = 0;
@@ -139,11 +124,9 @@ int main(int argc, char** argv)
 	std::cerr<<"Threads="<<PsimagLite::Concurrency::npthreads<<"\n";
 	inputCheck.checkForThreads(PsimagLite::Concurrency::npthreads);
 
-	GroundedType grounded(params);
-
 	ParallelizerType threadObject(PsimagLite::Concurrency::npthreads,
 	                              PsimagLite::MPI::COMM_WORLD);
-	ParallelTemperatureType parallelTemperature(params,grounded,nthreads);
+	ParallelTemperatureType parallelTemperature(params,nthreads);
 
 	threadObject.loopCreate(params.tt,parallelTemperature);
 
