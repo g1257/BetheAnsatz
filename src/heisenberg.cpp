@@ -24,6 +24,7 @@ along with BetheAnsatz. If not, see <http://www.gnu.org/licenses/>.
 #include "Concurrency.h"
 #include "Parallelizer.h"
 #include "TypeToString.h"
+#include "Heisenberg.h"
 
 template<typename ParametersType>
 class ParallelTemperature {

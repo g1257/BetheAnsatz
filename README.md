@@ -1,7 +1,6 @@
-# Quick Start
- 
-# Disclaimer and Licensing
- 
+# Preliminaries
+## Disclaimer and Licensing
+
 BetheAnsatz is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -12,21 +11,28 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with BetheAnsatz. If not, see <http://www.gnu.org/licenses/>.
-The full software license for BetheAnsatz version 1.0.0 
+The full software license for BetheAnsatz version 1.0.0
 can be found in
-file LICENSE. 
+file LICENSE.
 
-# Please cite this work
+## Please cite this work
 
 BetheAnsatz is a free and open source Bethe ansatz code.
 The full software license for BetheAnsatz version 0.1
 can be found in
-file LICENSE. 
-You are welcomed to use it and publish data 
+file LICENSE.
+You are welcomed to use it and publish data
 obtained with BetheAnsatz. If you do, please cite this
 work. Explain How To Cite This Work. FIXME. TBW.
 
-# Hash of the latest commit 
+## Formulas used
+For the Hubbard model, see T. Usuki, N. Kawakami and A. Okiji,
+J. Phys. Soc. Japan, 59(4), 1357 (1990).
+
+For the Heisenberg model, see M. Takahashi,
+Progress of Theoretical Physics, Vol. 46, No. 2, August 1971.
+
+## Hash of the latest commit
 
 Hash of the latest commit is also posted at
 https://web.ornl.gov/~gz1/hashes.html
@@ -43,12 +49,12 @@ https://web.ornl.gov/~gz1/hashes.html
 ## Optional Software
 
 * make or gmake (only needed to use the Makefile)
-* perl (may be needed to run some auxiliary script) 
+* perl (may be needed to run some auxiliary script)
 
 ## Quick Start
 
 1. Use your distribution repository tool to install gcc with support for C++,
-the LAPACK and BLAS libraries, the gsl library, make, perl, and git 
+the LAPACK and BLAS libraries, the gsl library, make, perl, and git
 if you don't have them.
 
 2. Issue
@@ -74,4 +80,4 @@ if you don't have them.
     make
 
 5. You can run it with TBW.
- 
+
