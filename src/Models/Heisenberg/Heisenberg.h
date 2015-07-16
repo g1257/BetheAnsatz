@@ -34,7 +34,7 @@ public:
 	Heisenberg(const ParametersType& params,
 	           RealType temperature,
 	           std::ostream& clog)
-	    : logEta_(params,temperature,clog),rho_(logEta_)
+	    : logEta_(params,temperature,clog),rho_(params,temperature,clog,logEta_)
 	{}
 
 private:

@@ -24,6 +24,7 @@ namespace BetheAnsatz {
 template<typename LogEtaType>
 class Rho {
 
+	typedef typename LogEtaType::ParametersType ParametersType;
 	typedef typename LogEtaType::RealType RealType;
 	typedef typename LogEtaType::MatrixRealType MatrixRealType;
 	typedef typename LogEtaType::MeshType MeshType;
@@ -47,22 +48,58 @@ class Rho {
 
 public:
 
-	Rho(const LogEtaType& logEta) : logEta_(logEta),mesh_(logEta_.mesh())
-	{}
+	Rho(const ParametersType& params,
+	    RealType temperature,
+	    std::ostream& clog,
+	    const LogEtaType& logEta)
+	    : logEta_(logEta),mesh_(logEta_.mesh()),rho_(params.nMax,mesh_.total())
+	{
+		clog<<"#Rho T="<<temperature<<" J="<<params.J<<"\n";
+		RealType controlOld = 0;
+		for (SizeType it = 0; it < params.iterations; ++it) {
+			RealType control = calcRho1();
+			for (SizeType n = 1; n < params.nMax; ++n) {
+				control += calcRhoN(n);
+			}
+
+			clog<<it<<" "<<control<<"\n";
+			if (fabs(1.0 - controlOld/control) < 1e-6) break;
+			controlOld = control;
+		}
+
+		clog<<"#Rho-------------\n";
+	}
 
 private:
 
 	static RealType function1(SizeType i, const AuxiliaryType& a)
 	{
-		return 0.0;
+		return a.rho(1,i)*exp(a.logEta(1,i));
 	}
 
 	static RealType function2(SizeType i, const AuxiliaryType& a)
 	{
-		return a.logEta(0,i);
+		return a.rho(0,i)*(1.0 + exp(a.logEta(0,i)));
 	}
 
-	RealType calRho1()
+	static RealType function11(SizeType i, const AuxiliaryType& a)
+	{
+		SizeType n = a.n;
+		assert(n > 0);
+		RealType tmp = a.rho(n-1,i)*exp(a.logEta(n-1,i));
+		if (n + 1 < a.rho.n_row())
+			tmp += a.rho(n+1,i)*exp(a.logEta(n+1,i));
+		return tmp;
+	}
+
+	static RealType function12(SizeType i, const AuxiliaryType& a)
+	{
+		SizeType n = a.n;
+		assert(n > 0);
+		return a.rho(n,i)*(exp(a.logEta(n,i))+1.0);
+	}
+
+	RealType calcRho1()
 	{
 		AuxiliaryType a1(0,logEta_,rho_);
 		ConvolutionType conv1(1,function1,a1,mesh_);
@@ -71,9 +108,28 @@ private:
 		RealType sum = 0;
 		for (SizeType i = 0; i < mesh_.total(); ++i) {
 			RealType k = mesh_.x(i);
-			RealType n1k = exp(logEta_(i));
-			RealType tmp = M_PI*(k*k + 1)*(n1k + 1);
-			rho_(0,i) = 1.0/tmp + conv1(i) - conv2(i);
+			RealType n1k = exp(logEta_(0,i));
+			RealType factor = 1.0/(n1k + 1);
+			RealType tmp = M_PI*(k*k + 1);
+			rho_(0,i) = factor*(1.0/tmp + conv1(i) - conv2(i));
+			sum += log(rho_(0,i));
+		}
+
+		return fabs(sum*mesh_.step());
+	}
+
+	RealType calcRhoN(SizeType n)
+	{
+		assert(n > 0);
+		AuxiliaryType a11(n,logEta_,rho_);
+		ConvolutionType conv11(1,function11,a11,mesh_);
+		ConvolutionType conv12(2,function12,a11,mesh_);
+
+		RealType sum = 0;
+		for (SizeType i = 0; i < mesh_.total(); ++i) {
+			RealType nnk = exp(logEta_(n,i));
+			RealType factor = 1.0/(nnk + 1);
+			rho_(n,i) = factor*(conv11(i) - conv12(i));
 			sum += log(rho_(0,i));
 		}
 

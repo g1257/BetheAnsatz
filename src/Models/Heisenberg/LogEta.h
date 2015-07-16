@@ -22,11 +22,12 @@ along with BetheAnsatz. If not, see <http://www.gnu.org/licenses/>.
 
 namespace BetheAnsatz {
 
-template<typename ParametersType>
+template<typename ParametersType_>
 class LogEta {
 
 public:
 
+	typedef ParametersType_ ParametersType;
 	typedef typename ParametersType::RealType RealType;
 	typedef PsimagLite::Matrix<RealType> MatrixRealType;
 	typedef Mesh<RealType> MeshType;
@@ -53,7 +54,7 @@ public:
 	      logEta_(params.nMax,mesh_.total()),
 	      minusTwoJOverT_(-2.0*params.J/temperature)
 	{
-		clog<<"T="<<temperature<<" J="<<params.J<<"\n";
+		clog<<"#LogEta T="<<temperature<<" J="<<params.J<<"\n";
 		RealType controlOld = 0;
 		for (SizeType it = 0; it < params.iterations; ++it) {
 			RealType control = calcEta1();
@@ -66,10 +67,15 @@ public:
 			controlOld = control;
 		}
 
-		clog<<"-------------\n";
+		clog<<"#LogEta-------------\n";
 	}
 
 	const MeshType& mesh() const { return mesh_; }
+
+	const RealType& operator()(SizeType n, SizeType i) const
+	{
+		return logEta_(n,i);
+	}
 
 private:
 
