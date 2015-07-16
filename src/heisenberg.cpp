@@ -59,7 +59,7 @@ public:
 			if (i >= total) break;
 			RealType t = params_.tb + i*ts;
 			HeisenbergType heisenberg(params_,t,fout);
-			omegaValue_[i] = 0.0;
+			omegaValue_[i] = heisenberg.energy();
 		}
 
 		fout.close();

@@ -18,7 +18,7 @@ along with BetheAnsatz. If not, see <http://www.gnu.org/licenses/>.
 #ifndef BETHE_LOGETA_H
 #define BETHE_LOGETA_H
 #include "../../Engine/Mesh.h"
-#include "../../Engine/Convolution.h"
+#include "Convolution.h"
 
 namespace BetheAnsatz {
 

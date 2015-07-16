@@ -26,6 +26,7 @@ template<typename ParametersType>
 class Heisenberg {
 
 	typedef LogEta<ParametersType> LogEtaType;
+	typedef typename LogEtaType::MeshType MeshType;
 	typedef Rho<LogEtaType> RhoType;
 	typedef typename ParametersType::RealType RealType;
 
@@ -34,13 +35,42 @@ public:
 	Heisenberg(const ParametersType& params,
 	           RealType temperature,
 	           std::ostream& clog)
-	    : logEta_(params,temperature,clog),rho_(params,temperature,clog,logEta_)
-	{}
+	    : J_(params.J),
+	      logEta_(params,temperature,clog),
+	      mesh_(logEta_.mesh()),
+	      rho_(params,temperature,clog,logEta_),
+	      energy_(0.0)
+	{
+		for (SizeType n = 0; n < params.nMax; ++n) {
+			energy_ += integralInternal(n);
+		}
+	}
+
+	const RealType& energy() const { return energy_; }
 
 private:
 
+	RealType integralInternal(SizeType n) const
+	{
+		RealType sum = 0;
+		for (SizeType i = 0; i < mesh_.total(); ++i) {
+			RealType k = mesh_.x(i);
+			sum += g(n,k)*rho_(n,i);
+		}
+
+		return sum*mesh_.step();
+	}
+
+	RealType g(SizeType n, RealType k) const
+	{
+		return -2.0*n*J_/(k*k + n*n);
+	}
+
+	RealType J_;
 	LogEtaType logEta_;
+	const MeshType& mesh_;
 	RhoType rho_;
+	RealType energy_;
 }; // class Heisenberg
 } // namespace BetheAnsatz
 

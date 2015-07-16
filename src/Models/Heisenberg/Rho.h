@@ -70,6 +70,11 @@ public:
 		clog<<"#Rho-------------\n";
 	}
 
+	const RealType& operator()(SizeType n, SizeType i) const
+	{
+		return rho_(n,i);
+	}
+
 private:
 
 	static RealType function1(SizeType i, const AuxiliaryType& a)
