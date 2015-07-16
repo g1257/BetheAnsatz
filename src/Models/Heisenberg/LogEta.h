@@ -15,14 +15,14 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with BetheAnsatz. If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef BETHE_HEISENBERG_H
-#define BETHE_HEISENBERG_H
+#ifndef BETHE_LOGETA_H
+#define BETHE_LOGETA_H
 #include "../../Engine/Mesh.h"
 
 namespace BetheAnsatz {
 
 template<typename ParametersType>
-class Heisenberg {
+class LogEta {
 
 	typedef typename ParametersType::RealType RealType;
 	typedef PsimagLite::Matrix<RealType> MatrixRealType;
@@ -80,7 +80,7 @@ class Heisenberg {
 
 public:
 
-	Heisenberg(const ParametersType& params,
+	LogEta(const ParametersType& params,
 	           RealType temperature,
 	           std::ostream& clog)
 	    : mesh_(2*params.infty,-params.infty,2.0*params.infty/params.meshLambdaTotal),
@@ -171,8 +171,8 @@ private:
 	MeshType mesh_;
 	MatrixRealType logEta_;
 	RealType minusTwoJOverT_;
-}; // class Heisenberg
+}; // class LogEta
 } // namespace BetheAnsatz
 
-#endif // BETHE_HEISENBERG_H
+#endif // BETHE_LOGETA_H
 
