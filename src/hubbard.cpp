@@ -22,7 +22,7 @@ along with BetheAnsatz. If not, see <http://www.gnu.org/licenses/>.
 #include "GrandPotential.h"
 #include "InputNg.h"
 #include "InputCheck.h"
-#include "Parameters.h"
+#include "ParametersHubbard.h"
 #include "Concurrency.h"
 #include "Parallelizer.h"
 #include "TypeToString.h"
@@ -97,7 +97,8 @@ typedef PsimagLite::InputNg<BetheAnsatz::InputCheck> InputNgType;
 
 int main(int argc, char** argv)
 {
-	typedef BetheAnsatz::Parameters<RealType, InputNgType::Readable> ParametersType;
+	typedef BetheAnsatz::ParametersHubbard<RealType,
+	        InputNgType::Readable> ParametersType;
 	typedef BetheAnsatz::Grounded<ParametersType> GroundedType;
 	typedef ParallelTemperature<ParametersType, GroundedType> ParallelTemperatureType;
 	typedef PsimagLite::Parallelizer<ParallelTemperatureType> ParallelizerType;

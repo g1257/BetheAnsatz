@@ -20,7 +20,7 @@ along with BetheAnsatz. If not, see <http://www.gnu.org/licenses/>.
 #include "Vector.h"
 #include "InputNg.h"
 #include "InputCheck.h"
-#include "Parameters.h"
+#include "ParametersHeisenberg.h"
 #include "Concurrency.h"
 #include "Parallelizer.h"
 #include "TypeToString.h"
@@ -86,7 +86,8 @@ typedef PsimagLite::InputNg<BetheAnsatz::InputCheck> InputNgType;
 
 int main(int argc, char** argv)
 {
-	typedef BetheAnsatz::Parameters<RealType, InputNgType::Readable> ParametersType;
+	typedef BetheAnsatz::ParametersHeisenberg<RealType, InputNgType::Readable>
+	        ParametersType;
 	typedef ParallelTemperature<ParametersType> ParallelTemperatureType;
 	typedef PsimagLite::Parallelizer<ParallelTemperatureType> ParallelizerType;
 

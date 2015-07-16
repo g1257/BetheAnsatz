@@ -86,7 +86,7 @@ public:
 	      eta_(params.nMax,mesh_.total()),
 	      minusTwoJOverT_(-2.0*params.J/temperature)
 	{
-		clog<<"T="<<params.T<<" J="<<params.J<<"\n";
+		clog<<"T="<<temperature<<" J="<<params.J<<"\n";
 		RealType controlOld = 0;
 		for (SizeType it = 0; it < params.iterations; ++it) {
 			RealType control = calcEta1();
@@ -147,7 +147,7 @@ private:
 		return fabs(sum*mesh_.step());
 	}
 
-	void calcEtaN(SizeType n)
+	RealType calcEtaN(SizeType n)
 	{
 		assert(n > 0);
 		AuxiliaryType a11(n,eta_);
@@ -157,7 +157,7 @@ private:
 		RealType sum = 0;
 		for (SizeType i = 0; i < mesh_.total(); ++i) {
 			RealType k = mesh_.x(i);
-			RealType lognnk = conv11(n,i) - conv12(n,i);
+			RealType lognnk = conv11(i) - conv12(i);
 			eta_(n,i) = exp(lognnk);
 			sum += log(eta_(n,i) + 1);
 		}
