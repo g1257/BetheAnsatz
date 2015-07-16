@@ -19,12 +19,12 @@ along with BetheAnsatz. If not, see <http://www.gnu.org/licenses/>.
 #include <unistd.h>
 #include "Vector.h"
 #include "InputNg.h"
-#include "InputCheck.h"
-#include "ParametersHeisenberg.h"
+#include "Engine/InputCheck.h"
+#include "Models/Heisenberg/ParametersHeisenberg.h"
 #include "Concurrency.h"
 #include "Parallelizer.h"
 #include "TypeToString.h"
-#include "Heisenberg.h"
+#include "Models/Heisenberg/Heisenberg.h"
 
 template<typename ParametersType>
 class ParallelTemperature {

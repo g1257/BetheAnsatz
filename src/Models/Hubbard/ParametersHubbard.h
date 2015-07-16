@@ -17,7 +17,7 @@ along with BetheAnsatz. If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef BETHE_PARAMETERS_HUBBARD_H
 #define BETHE_PARAMETERS_HUBBARD_H
-#include "ParametersBase.h"
+#include "../../Engine/ParametersBase.h"
 #include "Vector.h"
 
 namespace BetheAnsatz {

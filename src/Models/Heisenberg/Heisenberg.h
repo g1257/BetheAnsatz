@@ -17,7 +17,7 @@ along with BetheAnsatz. If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef BETHE_HEISENBERG_H
 #define BETHE_HEISENBERG_H
-#include "Mesh.h"
+#include "../../Engine/Mesh.h"
 
 namespace BetheAnsatz {
 

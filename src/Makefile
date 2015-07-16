@@ -2,7 +2,7 @@
 # BetheAnsatz by G.A.
 
 include Config.make
-CPPFLAGS += -I../../PsimagLite -I../../PsimagLite/src -IEngine
+CPPFLAGS += -I../../PsimagLite -I../../PsimagLite/src 
 all: hubbard heisenberg
 
 hubbard.o: hubbard.cpp  Makefile Config.make

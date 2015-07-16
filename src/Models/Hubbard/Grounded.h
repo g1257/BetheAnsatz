@@ -17,7 +17,7 @@ along with BetheAnsatz. If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef GROUNDED_H
 #define GROUNDED_H
-#include "Mesh.h"
+#include "../../Engine/Mesh.h"
 #include "SigmaZero.h"
 
 namespace BetheAnsatz {

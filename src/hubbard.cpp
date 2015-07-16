@@ -18,11 +18,11 @@ along with BetheAnsatz. If not, see <http://www.gnu.org/licenses/>.
 #include <cstdlib>
 #include <unistd.h>
 #include "Vector.h"
-#include "Grounded.h"
-#include "GrandPotential.h"
+#include "Models/Hubbard/Grounded.h"
+#include "Models/Hubbard/GrandPotential.h"
 #include "InputNg.h"
-#include "InputCheck.h"
-#include "ParametersHubbard.h"
+#include "Engine/InputCheck.h"
+#include "Models/Hubbard/ParametersHubbard.h"
 #include "Concurrency.h"
 #include "Parallelizer.h"
 #include "TypeToString.h"
