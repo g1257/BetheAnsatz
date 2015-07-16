@@ -31,6 +31,7 @@ class ParallelTemperature {
 
 	typedef typename ParametersType::RealType RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
+	typedef BetheAnsatz::Heisenberg<ParametersType> HeisenbergType;
 
 public:
 
@@ -57,6 +58,7 @@ public:
 			SizeType i = threadNum*blockSize + p;
 			if (i >= total) break;
 			RealType t = params_.tb + i*ts;
+			HeisenbergType heisenberg(params_,t,fout);
 			omegaValue_[i] = 0.0;
 		}
 
