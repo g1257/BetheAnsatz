@@ -67,7 +67,7 @@ public:
 		for (SizeType it = 0; it < params.iterations; ++it) {
 			iterate(it,params.nMax,constant,bmatrix);
 			RealType result = updateResult(constant2);
-			if (fabs(result-result_)<1e-6 && it > 0) break;
+			if (fabs(result-result_) < params.errorRelative && it > 0) break;
 			result_ = result;
 			clog<<it<<" "<<result_<<"\n";
 		}

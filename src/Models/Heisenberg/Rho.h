@@ -32,13 +32,16 @@ class Rho {
 	struct Auxiliary {
 		Auxiliary(SizeType n_,
 		          const LogEtaType& logEta_,
-		          const MatrixRealType& rho_)
-		    : n(n_),logEta(logEta_),rho(rho_)
+		          const MatrixRealType& rho_,
+		          const MeshType& mesh_)
+		    : n(n_),lastRho(0.0),logEta(logEta_),rho(rho_),mesh(mesh_)
 		{}
 
 		SizeType n;
+		RealType lastRho;
 		const LogEtaType& logEta;
 		const MatrixRealType& rho;
+		const MeshType& mesh;
 	};
 
 	typedef Auxiliary AuxiliaryType;
@@ -62,8 +65,9 @@ public:
 				control += calcRhoN(n);
 			}
 
+			control = (params.nMax - 1)*integralRho(params.nMax - 1);
 			clog<<it<<" "<<control<<"\n";
-			if (fabs(1.0 - controlOld/control) < 1e-6) break;
+			if (fabs(1.0 - controlOld/control) < params.errorRelative) break;
 			controlOld = control;
 		}
 
@@ -74,6 +78,20 @@ public:
 	{
 		return rho_(n,i);
 	}
+
+	static RealType integralSz(SizeType n,
+	                           const MatrixRealType& rho,
+	                           const MeshType& mesh)
+	{
+		RealType sum = 0;
+		for (SizeType i = 0; i < mesh.total(); ++i)
+			sum += rho(n,i);
+
+		return sum*mesh.step();
+	}
+
+	const MatrixRealType& matrix() const { return rho_; }
+
 
 private:
 
@@ -91,10 +109,13 @@ private:
 	{
 		SizeType n = a.n;
 		assert(n > 0);
-		RealType tmp = a.rho(n-1,i)*exp(a.logEta(n-1,i));
+		RealType tmp1 = a.rho(n-1,i)*exp(a.logEta(n-1,i));
+		RealType tmp2 = 0;
 		if (n + 1 < a.rho.n_row())
-			tmp += a.rho(n+1,i)*exp(a.logEta(n+1,i));
-		return tmp;
+			tmp2 = a.rho(n+1,i)*exp(a.logEta(n+1,i));
+		else
+			tmp2 = a.lastRho;
+		return tmp1 + tmp2;
 	}
 
 	static RealType function12(SizeType i, const AuxiliaryType& a)
@@ -104,11 +125,22 @@ private:
 		return a.rho(n,i)*(exp(a.logEta(n,i))+1.0);
 	}
 
+	RealType findLastRho() const
+	{
+		RealType sz = 0.5;
+		SizeType nMax = rho_.n_row();
+		for (SizeType n = 0; n < nMax; ++n) {
+			sz -= (n+1)*integralSz(n,rho_,mesh_);
+		}
+
+		return sz/(nMax*rho_.n_col());
+	}
+
 	RealType calcRho1()
 	{
-		AuxiliaryType a1(0,logEta_,rho_);
-		ConvolutionType conv1(1,function1,a1,mesh_);
-		ConvolutionType conv2(2,function2,a1,mesh_);
+		AuxiliaryType a1(0,logEta_,rho_,mesh_);
+		ConvolutionType conv1(1,function1,a1);
+		ConvolutionType conv2(2,function2,a1);
 
 		RealType sum = 0;
 		for (SizeType i = 0; i < mesh_.total(); ++i) {
@@ -117,7 +149,7 @@ private:
 			RealType factor = 1.0/(n1k + 1);
 			RealType tmp = M_PI*(k*k + 1);
 			rho_(0,i) = factor*(1.0/tmp + conv1(i) - conv2(i));
-			sum += log(rho_(0,i));
+			sum += rho_(0,i);
 		}
 
 		return fabs(sum*mesh_.step());
@@ -126,19 +158,29 @@ private:
 	RealType calcRhoN(SizeType n)
 	{
 		assert(n > 0);
-		AuxiliaryType a11(n,logEta_,rho_);
-		ConvolutionType conv11(1,function11,a11,mesh_);
-		ConvolutionType conv12(2,function12,a11,mesh_);
+		AuxiliaryType a11(n,logEta_,rho_,mesh_);
+		a11.lastRho = findLastRho();
+		ConvolutionType conv11(1,function11,a11);
+		ConvolutionType conv12(2,function12,a11);
 
 		RealType sum = 0;
 		for (SizeType i = 0; i < mesh_.total(); ++i) {
 			RealType nnk = exp(logEta_(n,i));
 			RealType factor = 1.0/(nnk + 1);
 			rho_(n,i) = factor*(conv11(i) - conv12(i));
-			sum += log(rho_(0,i));
+			sum += rho_(0,i);
 		}
 
 		return fabs(sum*mesh_.step());
+	}
+
+	RealType integralRho(SizeType n) const
+	{
+		RealType sum = 0.0;
+		for (SizeType i = 0; i < mesh_.total(); ++i)
+			sum += rho_(n,i);
+
+		return sum;
 	}
 
 	const LogEtaType& logEta_;

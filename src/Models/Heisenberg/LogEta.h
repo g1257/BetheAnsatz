@@ -34,12 +34,15 @@ public:
 	typedef typename MeshType::VectorRealType VectorRealType;
 
 	struct Auxiliary {
-		Auxiliary(SizeType n_,const MatrixRealType& logEta_)
-		    : n(n_),logEta(logEta_)
+		Auxiliary(SizeType n_,
+		          const MatrixRealType& logEta_,
+		          const MeshType& mesh_)
+		    : n(n_),logEta(logEta_),mesh(mesh_)
 		{}
 
 		SizeType n;
 		const MatrixRealType& logEta;
+		const MeshType& mesh;
 	};
 
 	typedef Auxiliary AuxiliaryType;
@@ -62,11 +65,13 @@ public:
 				control += calcEtaN(n);
 			}
 
+			control = maxLogEta(params.nMax - 1);
 			clog<<it<<" "<<control<<"\n";
-			if (fabs(1.0 - controlOld/control) < 1e-6) break;
+			if (fabs(1.0 - controlOld/control) < params.errorRelative) break;
 			controlOld = control;
 		}
 
+		clog<<"RemainderCutoff="<<remainderCutoff()<<"\n";
 		clog<<"#LogEta-------------\n";
 	}
 
@@ -104,42 +109,65 @@ private:
 		return a.logEta(a.n,i);
 	}
 
+	static RealType trappedLogModif(RealType x)
+	{
+		if (x>25) return x;
+		return log(1+exp(x));
+	}
+
 	RealType calcEta1()
 	{
-		AuxiliaryType a1(0,logEta_);
-		ConvolutionType conv1(1,function1,a1,mesh_);
-		ConvolutionType conv2(2,function2,a1,mesh_);
+		AuxiliaryType a1(0,logEta_,mesh_);
+		ConvolutionType conv1(1,function1,a1);
+		ConvolutionType conv2(2,function2,a1);
 
 		RealType sum = 0;
 		for (SizeType i = 0; i < mesh_.total(); ++i) {
 			RealType k = mesh_.x(i);
 			logEta_(0,i) = minusTwoJOverT_/(1.0 + k*k) + conv1(i) - conv2(i);
-			sum += logEta_(0,i);
+			if (fabs(logEta_(0,i)) > sum)
+				sum = fabs(logEta_(0,i));
 		}
 
-		return fabs(sum*mesh_.step());
+		return sum;
 	}
 
 	RealType calcEtaN(SizeType n)
 	{
 		assert(n > 0);
-		AuxiliaryType a11(n,logEta_);
-		ConvolutionType conv11(1,function11,a11,mesh_);
-		ConvolutionType conv12(2,function12,a11,mesh_);
+		AuxiliaryType a11(n,logEta_,mesh_);
+		ConvolutionType conv11(1,function11,a11);
+		ConvolutionType conv12(2,function12,a11);
 
 		RealType sum = 0;
 		for (SizeType i = 0; i < mesh_.total(); ++i) {
 			logEta_(n,i) = conv11(i) - conv12(i);
-			sum += logEta_(n,i);
+			if (fabs(logEta_(n,i)) > sum)
+				sum = fabs(logEta_(n,i));
 		}
 
-		return fabs(sum*mesh_.step());
+		return sum;
 	}
 
-	static RealType trappedLogModif(RealType x)
+	RealType remainderCutoff() const
 	{
-		if (x>25) return x;
-		return log(1+exp(x));
+		assert(logEta_.n_row() > 0);
+		SizeType last = logEta_.n_row() - 1;
+		RealType sum = 0;
+		for (SizeType i = 0; i < mesh_.total(); ++i) {
+			sum += fabs(logEta_(last,i));
+		}
+
+		return sum;
+	}
+
+	RealType maxLogEta(SizeType n) const
+	{
+		RealType max = 0.0;
+		for (SizeType i = 0; i < mesh_.total(); ++i)
+			if (fabs(logEta_(n,i)) > max) max = logEta_(n,i);
+
+		return max;
 	}
 
 	MeshType mesh_;

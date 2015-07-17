@@ -32,6 +32,8 @@ class ParallelTemperature {
 	typedef typename ParametersType::RealType RealType;
 	typedef typename PsimagLite::Vector<RealType>::Type VectorRealType;
 	typedef BetheAnsatz::Heisenberg<ParametersType> HeisenbergType;
+	typedef std::pair<RealType, RealType> PairRealType;
+	typedef typename PsimagLite::Vector<PairRealType>::Type VectorPairRealType;
 
 public:
 
@@ -59,7 +61,8 @@ public:
 			if (i >= total) break;
 			RealType t = params_.tb + i*ts;
 			HeisenbergType heisenberg(params_,t,fout);
-			omegaValue_[i] = heisenberg.energy();
+			omegaValue_[i] = PairRealType(heisenberg.energy(),
+			                              heisenberg.sz());
 		}
 
 		fout.close();
@@ -78,7 +81,7 @@ private:
 	}
 
 	const ParametersType& params_;
-	VectorRealType omegaValue_;
+	VectorPairRealType omegaValue_;
 }; // class ParallelTemperature
 
 typedef double RealType;

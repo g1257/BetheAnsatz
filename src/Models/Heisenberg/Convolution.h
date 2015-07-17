@@ -34,9 +34,8 @@ public:
 
 	Convolution(SizeType n,
 	            BracketableFunctionType& f,
-	            const AuxiliaryType& a,
-	            const MeshType& mesh)
-	    : result_(mesh.total()),mesh_(mesh)
+	            const AuxiliaryType& a)
+	    : result_(a.mesh.total()),mesh_(a.mesh)
 	{
 
 		for (SizeType i = 0; i < mesh_.total(); ++i) {

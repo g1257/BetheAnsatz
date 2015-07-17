@@ -39,18 +39,22 @@ public:
 	      logEta_(params,temperature,clog),
 	      mesh_(logEta_.mesh()),
 	      rho_(params,temperature,clog,logEta_),
-	      energy_(0.0)
+	      energy_(0.0),
+	      sz_(0.5)
 	{
 		for (SizeType n = 0; n < params.nMax; ++n) {
-			energy_ += integralInternal(n);
+			energy_ += integralEnergy(n);
+			sz_ -= (n+1)*RhoType::integralSz(n,rho_.matrix(),mesh_);
 		}
 	}
 
 	const RealType& energy() const { return energy_; }
 
+	const RealType& sz() const { return sz_; }
+
 private:
 
-	RealType integralInternal(SizeType n) const
+	RealType integralEnergy(SizeType n) const
 	{
 		RealType sum = 0;
 		for (SizeType i = 0; i < mesh_.total(); ++i) {
@@ -71,6 +75,7 @@ private:
 	const MeshType& mesh_;
 	RhoType rho_;
 	RealType energy_;
+	RealType sz_;
 }; // class Heisenberg
 } // namespace BetheAnsatz
 

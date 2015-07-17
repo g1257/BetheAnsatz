@@ -34,6 +34,7 @@ struct ParametersBase {
 	      infty(1e6),
 	      tb(0.0),
 	      te(0.0),
+	      errorRelative(1e-6),
 	      logroot("ba")
 	{
 		io.readline(nMax,"Nmax=");
@@ -51,6 +52,10 @@ struct ParametersBase {
 		} catch (std::exception&) {}
 
 		try {
+			io.readline(errorRelative,"ErrorRelative=");
+		} catch (std::exception&) {}
+
+		try {
 			io.readline(logroot,"LogRoot=");
 		} catch (std::exception&) {}
 	}
@@ -62,6 +67,7 @@ struct ParametersBase {
 	RealType infty;
 	RealType tb;
 	RealType te;
+	RealType errorRelative;
 	PsimagLite::String logroot;
 }; // struct ParametersBase
 
@@ -75,6 +81,7 @@ std::ostream& operator<<(std::ostream& os, const ParametersBase<T1,T2>& params)
 	os<<"Infty="<<params.infty<<"\n";
 	os<<"TemperatureBegin="<<params.tb<<"\n";
 	os<<"TemperatureEnd="<<params.te<<"\n";
+	os<<"ErrorRelative="<<params.errorRelative<<"\n";
 	os<<"LogRoot="<<params.logroot<<"\n";
 
 	return os;
