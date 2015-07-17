@@ -55,7 +55,7 @@ private:
 		RealType sum = 0;
 		for (SizeType i = 0; i < mesh_.total(); ++i) {
 			RealType k = mesh_.x(i);
-			sum += g(n,k)*rho_(n,i);
+			sum += g(n+1,k)*rho_(n,i);
 		}
 
 		return sum*mesh_.step();
