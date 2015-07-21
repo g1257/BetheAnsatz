@@ -53,7 +53,7 @@ public:
 	LogEta(const ParametersType& params,
 	           RealType temperature,
 	           std::ostream& clog)
-	    : mesh_(2*params.infty,-params.infty,2.0*params.infty/params.meshLambdaTotal),
+	    : mesh_(params.meshLambdaTotal,-params.infty,2.0*params.infty/params.meshLambdaTotal),
 	      logEta_(params.nMax,mesh_.total()),
 	      minusTwoJOverT_(-2.0*params.J/temperature)
 	{
@@ -81,6 +81,9 @@ public:
 	{
 		return logEta_(n,i);
 	}
+
+	template<typename T>
+	friend std::ostream& operator<<(std::ostream&, const LogEta<T>&);
 
 private:
 
@@ -174,6 +177,17 @@ private:
 	MatrixRealType logEta_;
 	RealType minusTwoJOverT_;
 }; // class LogEta
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const LogEta<T>& logEta)
+{
+	os<<"LogEta\n";
+	os<<logEta.mesh();
+	os<<logEta.logEta_;
+	os<<"minusTwoJOverT="<<logEta.minusTwoJOverT_<<"\n";
+	return os;
+}
+
 } // namespace BetheAnsatz
 
 #endif // BETHE_LOGETA_H

@@ -54,6 +54,17 @@ private:
 	VectorRealType data_;
 }; // class GrandPotential
 
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const Mesh<T>& mesh)
+{
+	os<<"Mesh\n";
+	os<<"Step="<<mesh.step()<<"\n";
+	os<<"Total="<<mesh.total()<<"\n";
+	if (mesh.total() > 0)
+		os<<"Start="<<mesh.x(0)<<"\n";
+	return os;
+}
+
 } // namespace BetheAnsatz
 #endif // MESH_H
 

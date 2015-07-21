@@ -92,6 +92,8 @@ public:
 
 	const MatrixRealType& matrix() const { return rho_; }
 
+	template<typename T>
+	friend	std::ostream& operator<<(std::ostream&, const Rho<T>&);
 
 private:
 
@@ -159,7 +161,7 @@ private:
 	{
 		assert(n > 0);
 		AuxiliaryType a11(n,logEta_,rho_,mesh_);
-		a11.lastRho = findLastRho();
+		a11.lastRho = 0.0; //findLastRho();
 		ConvolutionType conv11(1,function11,a11);
 		ConvolutionType conv12(2,function12,a11);
 
@@ -187,6 +189,14 @@ private:
 	const MeshType& mesh_;
 	MatrixRealType rho_;
 }; // class Rho
+
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const Rho<T>& rho)
+{
+	os<<"LogRho\n";
+	os<<rho.rho_;
+	return os;
+}
 
 } // namespace BetheAnsatz
 

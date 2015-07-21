@@ -42,6 +42,8 @@ public:
 	      energy_(0.0),
 	      sz_(0.5)
 	{
+		//clog<<logEta_;
+		//clog<<rho_;
 		for (SizeType n = 0; n < params.nMax; ++n) {
 			energy_ += integralEnergy(n);
 			sz_ -= (n+1)*RhoType::integralSz(n,rho_.matrix(),mesh_);
