@@ -55,7 +55,7 @@ class Grounded {
 		{
 			Params* p = static_cast<Params*>(vp);
 			RealType tmp = (lambda - sin(p->k));
-			RealType den = tmp*tmp + p->Usquared;
+			RealType den = tmp*tmp + 0.0625*p->Usquared;
 			return p->sigma0(lambda)/den;
 		}
 
@@ -82,14 +82,16 @@ class Grounded {
 			SigmaZeroType* p = static_cast<SigmaZeroType*>(vp);
 			const SigmaZeroType& sigma0 = *p;
 			RealType U = sigma0.U();
-			return cos(k)*(0.5 + U*cos(k)*integralOfSomething(k,sigma0))/M_PI;
+			return cos(k)*0.5*(1.0 + 0.5*U*cos(k)*
+			                   integralOfSomething(k,sigma0))/M_PI;
 		}
 
 		SigmaZeroType& params() { return sigma0_; }
 
 		RealType rho0(RealType k) const
 		{
-			return oneOverPi_*(0.5 + sigma0_.U()*cos(k)*integralOfSomething(k,sigma0_));
+			return oneOverPi_*0.5*(1.0 + 0.5*sigma0_.U()*cos(k)*
+			                      integralOfSomething(k,sigma0_));
 		}
 
 		RealType kappa0Part(RealType k) const

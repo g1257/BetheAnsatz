@@ -50,7 +50,7 @@ public:
 	      em_(params.nMax,Ep_.n_col()),
 	      kappa_(grounded_.kIndex().total(),0.0)
 	{
-		RealType xplus = (2*grounded.U()-mu_)/T_;
+		RealType xplus = (0.5*grounded.U()-mu_)/T_;
 		RealType constant = T_*log(cosh(xplus));
 
 		MatrixRealType bmatrix(2,params.nMax);
@@ -220,8 +220,8 @@ private:
 	RealType s(RealType lambda) const
 	{
 		RealType U = grounded_.U();
-		RealType factor1 = 0.25/U;
-		RealType factor2 = acos(-1)*0.5/U;
+		RealType factor1 = 1.0/U;
+		RealType factor2 = acos(-1)*2.0/U;
 		return factor1/cosh(factor2*lambda);
 	}
 

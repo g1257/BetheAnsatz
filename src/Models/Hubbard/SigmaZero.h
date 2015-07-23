@@ -38,8 +38,8 @@ private:
 			Params(RealType_ U_, RealType_ lambda_, TypeEnum type_)
 			 : U(U_),
 			   lambda(lambda_),
-			   factor1(0.25/U),
-			   factor2(0.5*acos(-1)/U),
+			   factor1(1.0/U),
+			   factor2(2.0*acos(-1)/U),
 			   type(type_)
 			{}
 
@@ -82,8 +82,8 @@ private:
 		                                RealType factor2)
 		{
 
-			RealType a = 1 + Uvalue*Uvalue - lambda*lambda;
-			RealType b = 2*Uvalue*lambda;
+			RealType a = 1 + 0.0625*Uvalue*Uvalue - lambda*lambda;
+			RealType b = 0.5*Uvalue*lambda;
 			RealType tmp = a + sqrt(a*a + b*b);
 			return s(lambda - sin(k), factor1, factor2) * sqrt(0.5*tmp);
 		}
