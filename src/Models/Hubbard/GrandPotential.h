@@ -61,7 +61,7 @@ public:
 			bmatrix(1,i) = tmp*tmp;
 		}
 
-		RealType constant2 = -T_*log(bmatrix(1,1));
+		RealType constant2 = -T_*log(bmatrix(1,0));
 
 		clog<<"T="<<T_<<" mu="<<mu_<<"\n";
 		for (SizeType it = 0; it < params.iterations; ++it) {

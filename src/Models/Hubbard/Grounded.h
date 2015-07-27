@@ -146,7 +146,7 @@ public:
 
 		for (SizeType i = 0; i < kIndex_.total(); ++i) {
 			RealType k = kIndex_.x(i);
-			kappa0_[i] = 2.0*cos(k)-4*energy0Integrand_.kappa0Part(k);
+			kappa0_[i] = -2.0*cos(k)-4*energy0Integrand_.kappa0Part(k);
 		}
 
 		initSigmaZeroVector();
