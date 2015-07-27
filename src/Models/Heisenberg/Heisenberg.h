@@ -39,7 +39,7 @@ public:
 	      logEta_(params,temperature,clog),
 	      mesh_(logEta_.mesh()),
 	      rho_(params,temperature,clog,logEta_),
-	      energy_(-0.25*J_),
+	      energy_(0.25*J_),
 	      sz_(0.5)
 	{
 		//clog<<logEta_;
