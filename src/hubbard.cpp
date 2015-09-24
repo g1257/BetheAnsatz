@@ -109,14 +109,20 @@ int main(int argc, char** argv)
 	BetheAnsatz::InputCheck inputCheck;
 	PsimagLite::String usage(argv[0]);
 	usage += " -f filename [-t threads]\n";
+	int precision = 0;
 
-	while ((opt = getopt(argc, argv,"f:t:")) != -1) {
+	while ((opt = getopt(argc, argv,"f:t:p:")) != -1) {
 		switch (opt) {
 		case 'f':
 			filename = optarg;
 			break;
 		case 't':
 			nthreads = atoi(optarg);
+			break;
+		case 'p':
+			precision = atoi(optarg);
+			std::cout.precision(precision);
+			std::cerr.precision(precision);
 			break;
 		default:
 			inputCheck.usageMain(usage);
