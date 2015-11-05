@@ -24,6 +24,8 @@ along with BetheAnsatz. If not, see <http://www.gnu.org/licenses/>.
 #include "Parallelizer.h"
 #include "TypeToString.h"
 #include "Models/Tj/ParametersTj.h"
+#include "Models/Tj/Rho0.h"
+#include "Engine/Mesh.h"
 
 typedef double RealType;
 typedef PsimagLite::InputNg<BetheAnsatz::InputCheck> InputNgType;
@@ -31,6 +33,7 @@ typedef PsimagLite::InputNg<BetheAnsatz::InputCheck> InputNgType;
 int main(int argc, char** argv)
 {
 	typedef BetheAnsatz::ParametersTj<RealType, InputNgType::Readable> ParametersType;
+	typedef BetheAnsatz::Rho0<ParametersType> Rho0Type;
 
 	int opt = 0;
 	SizeType nthreads = 1;
@@ -68,6 +71,12 @@ int main(int argc, char** argv)
 	std::cerr<<params;
 	std::cerr<<"Threads="<<PsimagLite::Concurrency::npthreads<<"\n";
 	inputCheck.checkForThreads(PsimagLite::Concurrency::npthreads);
+
+	for (SizeType i = 0; i < params.densityTotal; ++i) {
+		RealType density = i*params.densityStep + params.densityBegin;
+		Rho0Type rho0(params,density,std::cout);
+		std::cout<<density<<" "<<rho0.energy()<<"\n";
+	}
 
 }
 
