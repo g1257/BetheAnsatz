@@ -29,10 +29,10 @@ heisenberg: heisenberg.o
 	$(MAKE) -f Makefile -C ../../PsimagLite/lib/
 
 Makefile.dep: hubbard.cpp  heisenberg.cpp
-	$(CXX) $(CPPFLAGS) -MM hubbard.cpp heisenberg.cpp > Makefile.dep
+	$(CXX) $(CPPFLAGS) -MM hubbard.cpp heisenberg.cpp tJ.cpp > Makefile.dep
 
 clean: Makefile.dep
-	rm -f core* hubbard *.o *.dep  gitrev
+	rm -f core* hubbard tJ heisenberg *.o *.dep  gitrev
 
 include Makefile.dep
 

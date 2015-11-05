@@ -74,7 +74,7 @@ int main(int argc, char** argv)
 
 	for (SizeType i = 0; i < params.densityTotal; ++i) {
 		RealType density = i*params.densityStep + params.densityBegin;
-		Rho0Type rho0(params,density,std::cout);
+		Rho0Type rho0(params,density,std::cerr);
 		std::cout<<density<<" "<<rho0.energy()<<"\n";
 	}
 

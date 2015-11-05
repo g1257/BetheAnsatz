@@ -68,14 +68,14 @@ class Rho0 {
 		RealType operator()(RealType q0) const
 		{
 			SizeType q0Index = static_cast<SizeType>((q0-mesh_.x(0))/mesh_.step());
-			RealType sum = -densityOver2_;
+			RealType sum = 0.0;
 			assert(q0Index <= rho0_.size());
 			for (SizeType i = 0; i < q0Index; ++i) sum += rho0_[i];
 
 			RealType start = mesh_.total() - q0Index;
 			for (SizeType i = start; i < mesh_.total(); ++i) sum += rho0_[i];
 
-			return sum;
+			return sum*mesh_.step()-densityOver2_;
 		}
 
 	private:
@@ -89,7 +89,7 @@ public:
 
 	Rho0(const ParametersType& params,
 	     RealType density,
-	     std::ostream&)
+	     std::ostream& clog)
 	    : mesh_(params.meshLambdaTotal,-params.infty,
 	            2.0*params.infty/params.meshLambdaTotal),
 	      density_(density),
@@ -97,14 +97,21 @@ public:
 	{
 		for (SizeType i = 0; i < mesh_.total(); ++i) {
 			RealType nu = mesh_.x(i);
-			rho0_[i] = 1.0/(M_PI*(1.0 + nu*nu));
+			rho0_[i] = 2.0*shibaR(2.0*nu);
 		}
 
 		VectorRealType rho0(rho0_.size());
+		SizeType q0Index = static_cast<SizeType>(mesh_.total()*0.5);
+		RealType error = 1e-6;
+		RealType prevEnergy = energy();
 		for (SizeType it = 0; it < params.iterations; ++it) {
-			SizeType q0Index = computeQ0Index();
+			clog<<it<<" "<<q0Index<<"\n";
 			computeNewRho0(rho0,q0Index);
+			q0Index = computeQ0Index();
 			rho0_ = rho0;
+			RealType newEnergy = energy();
+			if (it > 0 && fabs(newEnergy - prevEnergy) < error) break;
+			prevEnergy = newEnergy;
 		}
 	}
 
@@ -139,10 +146,27 @@ private:
 	{
 		SizeType end = mesh_.total() - 1;
 		EqThreePointFiveB eqThreePointFive(mesh_,rho0_,density_);
-		PsimagLite::RootFindingBisection<EqThreePointFiveB> rfb(eqThreePointFive,
+		RealType q0 = 0.0;
+		SizeType twoToTheTen = (1<<10);
+		RealType tolerance = 1.0/twoToTheTen;
+		bool success = false;
+		for (SizeType i = 0; i < 10; ++i) {
+			tolerance *= 2;
+			try {
+				PsimagLite::RootFindingBisection<EqThreePointFiveB> rfb(eqThreePointFive,
 		                                                        mesh_.x(0),
-		                                                        mesh_.x(end));
-		RealType q0 = rfb();
+		                                                        mesh_.x(end),
+		                                                        1000,
+		                                                        tolerance);
+				success = true;
+				q0 = rfb();
+				break;
+			} catch (std::exception&) {}
+		}
+
+		if (!success)
+			throw PsimagLite::RuntimeError("computeQ0Index failed\n");
+
 		return static_cast<SizeType>((q0-mesh_.x(0))/mesh_.step());
 	}
 
