@@ -135,6 +135,8 @@ public:
 	      cosIntegral_()
 	{
 		RealType i0Over2 = 0.5*(gamma_ + f1Function(0.0) - f2Function(0.0));
+		std::cerr<<"f1(0)= "<<f1Function(0.0)<<" f2(0)= "<<f2Function(0.0);
+		std::cerr<<"I0="<<(2.0*i0Over2)<<"\n";
 		for (SizeType i = 0; i < kmesh.total(); ++i) {
 			RealType k = kmesh.x(i);
 			RealType wu = M_PI*sin(0.5*k);
@@ -200,7 +202,6 @@ private:
 
 	RealType f2Function(RealType t)
 	{
-		return 0.0;
 		Fintegrand f2Integrand(t,Fintegrand::F2);
 		PsimagLite::Integrator<Fintegrand> integrator(f2Integrand);
 		VectorRealType pts(2,0.0);
@@ -210,7 +211,7 @@ private:
 
 	bool isTooSmall(RealType x) const
 	{
-		return (fabs(x)<1e-8);
+		return (fabs(x)<1e-10);
 	}
 
 	const BetheAnsatz::Mesh<RealType>& kmesh_;
