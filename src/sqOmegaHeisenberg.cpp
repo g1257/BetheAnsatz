@@ -1,4 +1,5 @@
 #include "Models/Heisenberg/TwoSpinonHeisenberg.h"
+#include "Models/Heisenberg/FourSpinonHeisenberg.h"
 
 void usageMain(const char* name)
 {
@@ -39,7 +40,9 @@ int main(int argc, char** argv)
 
 	BetheAnsatz::Mesh<double> kmesh(total,0.0,step);
 	BetheAnsatz::Mesh<double> emesh(totalE,0.0,stepE);
-	TwoSpinonHeisenberg<double> twoSpinon(kmesh,emesh);
+	BetheAnsatz::TwoSpinonHeisenberg<double> twoSpinon(kmesh,emesh);
 	twoSpinon.toGnuplot(std::cout,cutoff);
+
+	BetheAnsatz::FourSpinonHeisenberg<double> fourSpinon(kmesh,emesh);
 }
 

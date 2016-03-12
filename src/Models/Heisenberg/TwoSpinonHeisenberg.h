@@ -6,6 +6,8 @@
 #include "Matrix.h"
 #include "Integrator.h"
 
+namespace BetheAnsatz {
+
 // Reference [1] M. Karbach et al., PRB 55, 12510 (1997)
 template<typename RealType_>
 class TwoSpinonHeisenberg {
@@ -132,11 +134,11 @@ public:
 	    : kmesh_(kmesh),
 	      emesh_(emesh),
 	      m_(kmesh.total(),emesh.total()),
-	      cosIntegral_()
+	      cosIntegral_(),
+	      i0Over2_(0.5*(gamma_ + f1Function(0.0) - f2Function(0.0)))
 	{
-		RealType i0Over2 = 0.5*(gamma_ + f1Function(0.0) - f2Function(0.0));
 		std::cerr<<"f1(0)= "<<f1Function(0.0)<<" f2(0)= "<<f2Function(0.0);
-		std::cerr<<"I0="<<(2.0*i0Over2)<<"\n";
+		std::cerr<<"I0="<<(2.0*i0Over2_)<<"\n";
 		for (SizeType i = 0; i < kmesh.total(); ++i) {
 			RealType k = kmesh.x(i);
 			RealType wu = M_PI*sin(0.5*k);
@@ -144,7 +146,7 @@ public:
 			for (SizeType j = 0; j < emesh.total(); ++j) {
 				RealType w = emesh.x(j);
 				// Eq. (1.7) of Ref [1]
-				m_(i,j) = mFunction(wu,wl,w)*dFunction(wu,wl,w)*exp(i0Over2);
+				m_(i,j) = mFunction(wu,wl,w)*dFunction(wu,wl,w);
 			}
 		}
 	}
@@ -161,6 +163,12 @@ public:
 				os<<k<<" "<<w<<" "<<value<<"\n";
 			}
 		}
+	}
+
+	RealType eMinusIfunction(RealType t) const
+	{
+		RealType tmp = 0.5*hFunction(t);
+		return exp(tmp)*sqrt(t)*sinh(M_PI*t*0.25)*exp(i0Over2_);
 	}
 
 private:
@@ -184,23 +192,22 @@ private:
 		if (isTooSmall(den)) return 0.0;
 		RealType tmp2 = (wu*wu-wl*wl)/den;
 		RealType t = 4.0*(sqrt(tmp2) + sqrt(tmp2+1))/M_PI;
-		RealType tmp = 0.5*hFunction(t);
-		return 0.5*exp(tmp)*sqrt(t)*sinh(M_PI*t*0.25);
+		return eMinusIfunction(t);
 	}
 
-	RealType hFunction(RealType t)
+	RealType hFunction(RealType t) const
 	{
 		return cosIntegral_(t) + f1Function(t) - f2Function(t);
 	}
 
-	RealType f1Function(RealType t)
+	RealType f1Function(RealType t) const
 	{
 		Fintegrand f1Integrand(t,Fintegrand::F1);
 		PsimagLite::Integrator<Fintegrand> integrator(f1Integrand);
 		return integrator.toInfinity(1.0);
 	}
 
-	RealType f2Function(RealType t)
+	RealType f2Function(RealType t) const
 	{
 		Fintegrand f2Integrand(t,Fintegrand::F2);
 		PsimagLite::Integrator<Fintegrand> integrator(f2Integrand);
@@ -218,7 +225,9 @@ private:
 	const BetheAnsatz::Mesh<RealType>& emesh_;
 	PsimagLite::Matrix<RealType> m_;
 	CosIntegral cosIntegral_;
+	RealType i0Over2_;
 };
+} // namespace BetheAnsatz
 
 #endif // TWOSPINONHEISENBERG_H
 
