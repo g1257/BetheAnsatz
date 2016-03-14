@@ -96,7 +96,8 @@ class FourSpinonHeisenberg {
 			RealType prod = 1.0;
 			for (SizeType i = 0; i < rho.size(); ++i) {
 				for (SizeType j = i + 1; j < rho.size(); ++j) {
-					RealType rhoij = rho[i] - rho[j];
+					RealType rhoij = fabs(rho[i] - rho[j]);
+					if (rhoij == 0) return 0.0;
 					prod *= tsh.eMinusIfunction(rhoij);
 				}
 			}
@@ -251,6 +252,8 @@ class FourSpinonHeisenberg {
 			RealType k = paramsPtr->k;
 			RealType w = paramsPtr->w;
 
+			if (inValidRegion(k,w,K)) return 0.0;
+
 			VectorRealType pts(2,0.0);
 			pts[0] = omegaL(k,w,K);
 			pts[1] = omegaU(k,w,K);
@@ -275,6 +278,55 @@ class FourSpinonHeisenberg {
 			return std::min(x1,x2);
 		}
 
+		static bool inValidRegion(RealType k, RealType w, RealType K)
+		{
+			RealType piSinkOver2 = M_PI*sin(0.5*k);
+			RealType piCoskOver2 = M_PI*cos(0.5*k);
+			RealType piCoskOver4 = M_PI*cos(k*0.25);
+			RealType piSinkOver4 = M_PI*sin(k*0.25);
+
+			RealType x = 0.5*k + M_PI;
+			RealType y = 2.0*acos(0.5*w/piCoskOver4);
+			RealType k1am = x - y;
+			RealType k1ap = x + y;
+
+			x = 0.5*k;
+			y = 2.0*acos(0.5*w/piSinkOver4);
+			RealType k1bm = x - y;
+			RealType k1bp = x + y;
+
+			if (w > piSinkOver2 && w <= 2.0*piSinkOver4) {
+				bool b1 = (K >= k1am && K <= k1ap);
+				bool b2 = (K >= k1bm && K <= k1bp);
+				if (!b1 && !b2) return true;
+			}
+
+			RealType piOver2Sink = M_PI*0.5*sin(k);
+
+			x = 0.5*(k+M_PI);
+			y = acos(w/piCoskOver2);
+			RealType k2cm = x - y;
+			RealType k2cp = x + y;
+
+			if (w >= piOver2Sink && w <= piSinkOver2) {
+				bool b1 = (K >= k2cm && K <= k2cp);
+				bool b2 = (K >= k2cm + M_PI && K <= k2cp+M_PI);
+				if (b1 || b2) return true;
+			}
+
+			x  = 0.5*k;
+			y = acos(w/piSinkOver2);
+			RealType k2dm = x - y;
+			RealType k2dp = x + y;
+			if (w >= piOver2Sink && w <= piCoskOver2) {
+				bool b1 = (K >= k2dm && K <= k2dp);
+				bool b2 = (K >= k2dm + M_PI && K <= k2dp+M_PI);
+				if (b1 || b2) return true;
+			}
+
+			return false;
+		}
+
 		Params params_;
 	}; // class Eq35Integrand
 
@@ -294,6 +346,8 @@ public:
 			RealType k = kmesh.x(i);
 			for (SizeType j = 0; j < emesh.total(); ++j) {
 				RealType w = emesh.x(j);
+				if (k <= 0 || k >= M_PI) continue;
+				if (w <= w4l(k) || w >= w4u(k)) continue;
 				// Eq. (1.7) of Ref [1]
 				m_(i,j) = c4*mainFunction(k,w);
 			}
@@ -323,6 +377,17 @@ private:
 		pts[1] = 2.0*M_PI; // FIXME: limits of integration on many sectors
 		PsimagLite::Integrator<Eq35Integrand> integrator(eq5Integrand);
 		return integrator(pts);
+	}
+
+	RealType w4l(RealType k) const
+	{
+		return 0.5*M_PI*fabs(sin(k));
+	}
+
+
+	RealType w4u(RealType k) const
+	{
+		return M_PI*sqrt(2.0*(1.0+fabs(cos(0.5*k))));
 	}
 
 	const BetheAnsatz::Mesh<RealType>& kmesh_;
