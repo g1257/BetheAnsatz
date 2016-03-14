@@ -4,7 +4,7 @@
 void usageMain(const char* name)
 {
 	std::cout<<"USAGE: "<<name<<" [-w stepEnergy] [-W energyPoints] ";
-	std::cout<<"[-k stepK] [-K kPoints]\n";
+	std::cout<<"[-k stepK] [-K kPoints] what\n";
 }
 
 int main(int argc, char** argv)
@@ -40,9 +40,19 @@ int main(int argc, char** argv)
 
 	BetheAnsatz::Mesh<double> kmesh(total,0.0,step);
 	BetheAnsatz::Mesh<double> emesh(totalE,0.0,stepE);
-	BetheAnsatz::TwoSpinonHeisenberg<double> twoSpinon(kmesh,emesh);
-	twoSpinon.toGnuplot(std::cout,cutoff);
 
-	BetheAnsatz::FourSpinonHeisenberg<double> fourSpinon(kmesh,emesh);
+	PsimagLite::String what = (optind < argc) ? argv[optind] : "";
+
+	if (what == "") return 1;
+
+	if (what.find("two") != PsimagLite::String::npos) {
+		BetheAnsatz::TwoSpinonHeisenberg<double> twoSpinon(kmesh,emesh);
+		twoSpinon.toGnuplot(std::cout,cutoff);
+	}
+
+	if (what.find("four") != PsimagLite::String::npos) {
+		BetheAnsatz::FourSpinonHeisenberg<double> fourSpinon(kmesh,emesh);
+		fourSpinon.toGnuplot(std::cout,cutoff);
+	}
 }
 

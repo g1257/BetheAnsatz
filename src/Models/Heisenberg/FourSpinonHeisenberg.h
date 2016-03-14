@@ -300,6 +300,20 @@ public:
 		}
 	}
 
+	void toGnuplot(std::ostream& os, RealType cutoff)
+	{
+		for (SizeType j = 0; j < emesh_.total(); ++j) {
+			RealType w = emesh_.x(j);
+			for (SizeType i = 0; i < kmesh_.total(); ++i) {
+				RealType k = kmesh_.x(i);
+				RealType value = m_(i,j);
+				if (cutoff > 0)
+					value = (value > cutoff) ? cutoff : value;
+				os<<k<<" "<<w<<" "<<value<<"\n";
+			}
+		}
+	}
+
 private:
 
 	RealType mainFunction(RealType k,RealType w)
