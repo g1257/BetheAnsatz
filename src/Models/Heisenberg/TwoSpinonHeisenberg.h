@@ -5,6 +5,7 @@
 #include "../../Engine/Mesh.h"
 #include "Matrix.h"
 #include "Integrator.h"
+#include "SpecialFunctions.h"
 
 namespace BetheAnsatz {
 
@@ -63,70 +64,6 @@ class TwoSpinonHeisenberg {
 		Params params_;
 	}; // class Fintegrand
 
-	class CosIntegral {
-
-	public:
-
-		CosIntegral(SizeType pre = 100, RealType tol = 1e-6)
-		    : pre_(pre),toleranceSeries_(tol)
-		{
-			RealType prev = 0.0;
-			for (SizeType i = 0; i < pre_.size(); ++i) {
-				pre_[i] = preCompute(prev,i+1);
-			}
-		}
-
-		RealType operator()(RealType x) const
-		{
-			return (x > 20) ? 0.0 : gamma_ + log(x) + 0.5*series(x);
-		}
-
-	private:
-
-		RealType series(RealType x) const
-		{
-			RealType sum = 0.0;
-			RealType prev = 0.0;
-			SizeType total = pre_.size();
-			for (SizeType i = 0; i < total; ++i) {
-				SizeType j = i + 1;
-				prev = sum;
-				RealType tmp = pre_[i]*pow(x,2*j);
-				RealType sign = (i&1) ? 1 : -1;
-				sum += tmp*sign;
-			}
-
-			if (fabs(sum-prev) > toleranceSeries_) {
-				PsimagLite::String str("CosIntegral: series ");
-				str += "tolerance not achieved\n";
-				throw PsimagLite::RuntimeError(str);
-			}
-
-			return sum;
-		}
-
-		RealType preCompute(RealType& prev,SizeType i) const
-		{
-			return 1.0/(i*factorialTwo(prev,i));
-		}
-
-		RealType factorialTwo(RealType& prev, SizeType x) const
-		{
-			if (x == 1) {
-				prev = 2;
-			}
-
-			SizeType start = 2*x-1;
-			SizeType end = 2*x + 1;
-			for (SizeType i = start; i < end; ++i) prev *= i;
-
-			return prev;
-		}
-
-		VectorRealType pre_;
-		RealType toleranceSeries_;
-	}; // class CosIntegral
-
 public:
 
 	TwoSpinonHeisenberg(const BetheAnsatz::Mesh<RealType>& kmesh,
@@ -134,7 +71,6 @@ public:
 	    : kmesh_(kmesh),
 	      emesh_(emesh),
 	      m_(kmesh.total(),emesh.total()),
-	      cosIntegral_(),
 	      i0Over2_(0.5*(gamma_ + f1Function(0.0) - f2Function(0.0)))
 	{
 		std::cerr<<"f1(0)= "<<f1Function(0.0)<<" f2(0)= "<<f2Function(0.0);
@@ -197,7 +133,7 @@ private:
 
 	RealType hFunction(RealType t) const
 	{
-		return cosIntegral_(t) + f1Function(t) - f2Function(t);
+		return PsimagLite::Ci(t) + f1Function(t) - f2Function(t);
 	}
 
 	RealType f1Function(RealType t) const
@@ -224,7 +160,6 @@ private:
 	const BetheAnsatz::Mesh<RealType>& kmesh_;
 	const BetheAnsatz::Mesh<RealType>& emesh_;
 	PsimagLite::Matrix<RealType> m_;
-	CosIntegral cosIntegral_;
 	RealType i0Over2_;
 };
 } // namespace BetheAnsatz

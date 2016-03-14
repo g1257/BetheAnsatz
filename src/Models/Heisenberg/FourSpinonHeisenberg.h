@@ -1,7 +1,7 @@
 #ifndef FOURSPINONHEISENBERG_H
 #define FOURSPINONHEISENBERG_H
 #include "TwoSpinonHeisenberg.h"
-#include "GammaFunction.h"
+#include "SpecialFunctions.h"
 
 namespace BetheAnsatz {
 
