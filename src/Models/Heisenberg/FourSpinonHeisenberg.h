@@ -1,6 +1,7 @@
 #ifndef FOURSPINONHEISENBERG_H
 #define FOURSPINONHEISENBERG_H
 #include "TwoSpinonHeisenberg.h"
+#include "GammaFunction.h"
 
 namespace BetheAnsatz {
 
@@ -127,6 +128,82 @@ class FourSpinonHeisenberg {
 			RealType y = acos(wdiff/w2u(kdiff));
 			p[2] = x + y;
 			p[3] = x - y;
+		}
+
+		static RealType computeGl2(SizeType l, const VectorRealType& rho)
+		{
+			std::complex<RealType> sum1 = 0.0;
+			for (SizeType j = 0; j < 4; ++j)
+				sum1 += cosh(2.0*M_PI*rho[j])*computeGl2Aux(l,rho,j);
+
+			std::complex<RealType> sum = std::conj(sum1)*sum1;
+			return (l&1) ? -std::real(sum) : std::real(sum);
+		}
+
+		static std::complex<RealType> computeGl2Aux(SizeType l,
+		                                            const VectorRealType& rho,
+		                                            SizeType j)
+		{
+			std::complex<RealType> sum1 = 0.0;
+			std::complex<RealType> summand = 0.0;
+			std::complex<RealType> prev = 0.0;
+			SizeType start = (j <= l) ? 0 : 1;
+			SizeType mMax = 100;
+			for (SizeType m = start; m < mMax; ++m) {
+				prev = summand;
+				summand = prodOne(l,rho,j,m)*prodTwo(rho,j,m);
+				sum1 += summand;
+			}
+
+			if (std::norm(prev-summand)>1e-6)
+				throw PsimagLite::RuntimeError("computeGl2Aux failed\n");
+
+			return sum1;
+		}
+
+		static std::complex<RealType> prodOne(SizeType l,
+		                                      const VectorRealType& rho,
+		                                      SizeType j,
+		                                      SizeType m)
+		{
+			std::complex<RealType> prod1 = 1.0;
+			for (SizeType i = 0; i < 4; ++i) {
+				if (i == l && i == j) continue;
+				std::complex<RealType> termNum(m,rho[j] - rho[i]);
+				if (l > i) termNum -= 0.5;
+				RealType termDen = sinh(M_PI*(rho[j] - rho[i]));
+				std::complex<RealType> term = (i != l) ?  termNum : 1.0;
+				if (i != j) term /= termDen;
+				prod1 *= term;
+			}
+
+			return prod1;
+		}
+
+		static std::complex<RealType> prodTwo(const VectorRealType& rho,
+		                                      SizeType j,
+		                                      SizeType m)
+		{
+			std::complex<RealType> prod1 = 1.0;
+			for (SizeType i = 0; i < 4; ++i) {
+				RealType rhoji = rho[j] - rho[i];
+				std::complex<RealType> g1 = PsimagLite::LnGammaFunction(
+				            std::complex<RealType>(m-0.5,rhoji));
+
+				RealType r1 = std::real(g1);
+				RealType a1 = std::imag(g1);
+				std::complex<RealType> c1(r1*cos(a1),r1*sin(a1));
+
+				std::complex<RealType> g2 = PsimagLite::LnGammaFunction(
+				            std::complex<RealType>(m+1.0,rhoji));
+
+				RealType r2 = std::real(g2);
+				RealType a2 = std::imag(g2);
+				std::complex<RealType> c2(r2*cos(a2),r2*sin(a2));
+				prod1 *= exp(c1/c2);
+			}
+
+			return prod1;
 		}
 
 		static RealType cot(RealType x)
