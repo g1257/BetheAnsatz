@@ -37,7 +37,12 @@ public:
 	void check(const PsimagLite::String&, const PsimagLite::String&, SizeType)
 	{}
 
-
+	bool checkSimpleLabel(const PsimagLite::String&,
+	                      SizeType) const
+	{
+		// FIXME: needs implementation
+		return true;
+	}
 
 	void usageMain(const PsimagLite::String& name) const
 	{

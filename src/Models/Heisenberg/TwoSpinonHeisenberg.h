@@ -16,7 +16,7 @@ class TwoSpinonHeisenberg {
 	typedef typename PsimagLite::Vector<RealType_>::Type VectorRealType;
 	typedef RealType_ RealType;
 
-	static const RealType gamma_ = 0.577215664901532860606512090082;
+	static const RealType gamma_;
 
 	class Fintegrand {
 
@@ -162,6 +162,9 @@ private:
 	PsimagLite::Matrix<RealType> m_;
 	RealType i0Over2_;
 };
+
+template<typename RealType>
+const RealType TwoSpinonHeisenberg<RealType>::gamma_ = 0.577215664901532860606512090082;
 } // namespace BetheAnsatz
 
 #endif // TWOSPINONHEISENBERG_H
