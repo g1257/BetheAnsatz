@@ -6,6 +6,7 @@
 #include "Matrix.h"
 #include "Integrator.h"
 #include "SpecialFunctions.h"
+#include <math.h>
 
 namespace BetheAnsatz {
 
@@ -127,7 +128,7 @@ private:
 		RealType den = (w*w-wl*wl);
 		if (isTooSmall(den)) return 0.0;
 		RealType tmp2 = (wu*wu-wl*wl)/den;
-		RealType t = 4.0*(sqrt(tmp2) + sqrt(tmp2+1))/M_PI;
+		RealType t = 4.0*log(sqrt(tmp2) + sqrt(tmp2-1))/M_PI;
 		return eMinusIfunction(t);
 	}
 
