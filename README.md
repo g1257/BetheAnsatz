@@ -67,15 +67,11 @@ if you don't have them.
 
 3. Compile PsimagLite
 
-    cd PsimagLite/lib/
-
-    make -f Makefile.sample
-
-    cd ../../
-
 4. Now issue
 
     cd BetheAnsatz/src
+
+    cp Config.make.sample Config.make
 
     make
 
