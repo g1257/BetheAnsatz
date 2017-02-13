@@ -17,6 +17,7 @@ along with BetheAnsatz. If not, see <http://www.gnu.org/licenses/>.
 */
 #include <cstdlib>
 #include <unistd.h>
+#define USE_PTHREADS_OR_NOT_NG
 #include "Vector.h"
 #include "InputNg.h"
 #include "Engine/InputCheck.h"
@@ -37,35 +38,20 @@ class ParallelTemperature {
 
 public:
 
-	ParallelTemperature(const ParametersType& params,
-	                    SizeType threads)
+	ParallelTemperature(const ParametersType& params)
 	    : params_(params), omegaValue_(params.tt)
-	{
-		for (SizeType i = 0; i < threads; ++i) {
-			PsimagLite::String name = filenameForThread(i);
-			unlink(name.c_str());
-		}
-	}
+	{}
 
-	void thread_function_(SizeType threadNum,
-	                      SizeType blockSize,
-	                      SizeType total,
-	                      PsimagLite::Concurrency::MutexType*)
+	SizeType tasks() const { return params_.tt; }
+
+	void doTask(SizeType taskNumber ,SizeType threadNum)
 	{
 		RealType ts = (params_.te - params_.tb)/params_.tt;
+		RealType t = params_.tb + taskNumber*ts;
+		HeisenbergType heisenberg(params_,t);
+		omegaValue_[taskNumber] = PairRealType(heisenberg.energy(),
+		                              heisenberg.sz());
 
-		PsimagLite::String name = filenameForThread(threadNum);
-		std::ofstream fout(name.c_str(),std::ios::app);
-		for (SizeType p = 0; p < blockSize; p++) {
-			SizeType i = threadNum*blockSize + p;
-			if (i >= total) break;
-			RealType t = params_.tb + i*ts;
-			HeisenbergType heisenberg(params_,t,fout);
-			omegaValue_[i] = PairRealType(heisenberg.energy(),
-			                              heisenberg.sz());
-		}
-
-		fout.close();
 	}
 
 	void print(std::ostream& os) const
@@ -74,11 +60,6 @@ public:
 	}
 
 private:
-
-	PsimagLite::String filenameForThread(SizeType thread) const
-	{
-		return params_.logroot + ttos(thread) + ".txt";
-	}
 
 	const ParametersType& params_;
 	VectorPairRealType omegaValue_;
@@ -133,9 +114,9 @@ int main(int argc, char** argv)
 
 	ParallelizerType threadObject(PsimagLite::Concurrency::npthreads,
 	                              PsimagLite::MPI::COMM_WORLD);
-	ParallelTemperatureType parallelTemperature(params,nthreads);
+	ParallelTemperatureType parallelTemperature(params);
 
-	threadObject.loopCreate(params.tt,parallelTemperature);
+	threadObject.loopCreate(parallelTemperature);
 
 	parallelTemperature.print(std::cout);
 }

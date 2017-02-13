@@ -51,13 +51,12 @@ public:
 	ConvolutionType;
 
 	LogEta(const ParametersType& params,
-	           RealType temperature,
-	           std::ostream& clog)
+	           RealType temperature)
 	    : mesh_(params.meshLambdaTotal,-params.infty,2.0*params.infty/params.meshLambdaTotal),
 	      logEta_(params.nMax,mesh_.total()),
 	      minusTwoJOverT_(-2.0*params.J/temperature)
 	{
-		clog<<"#LogEta T="<<temperature<<" J="<<params.J<<"\n";
+		//clog<<"#LogEta T="<<temperature<<" J="<<params.J<<"\n";
 		RealType controlOld = 0;
 		for (SizeType it = 0; it < params.iterations; ++it) {
 			RealType control = calcEta1();
@@ -66,13 +65,13 @@ public:
 			}
 
 			control = maxLogEta(params.nMax - 1);
-			clog<<it<<" "<<control<<"\n";
+			//clog<<it<<" "<<control<<"\n";
 			if (fabs(1.0 - controlOld/control) < params.errorRelative) break;
 			controlOld = control;
 		}
 
-		clog<<"RemainderCutoff="<<remainderCutoff()<<"\n";
-		clog<<"#LogEta-------------\n";
+		//clog<<"RemainderCutoff="<<remainderCutoff()<<"\n";
+		//clog<<"#LogEta-------------\n";
 	}
 
 	const MeshType& mesh() const { return mesh_; }

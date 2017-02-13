@@ -53,11 +53,10 @@ public:
 
 	Rho(const ParametersType& params,
 	    RealType temperature,
-	    std::ostream& clog,
 	    const LogEtaType& logEta)
 	    : logEta_(logEta),mesh_(logEta_.mesh()),rho_(params.nMax,mesh_.total())
 	{
-		clog<<"#Rho T="<<temperature<<" J="<<params.J<<"\n";
+		//clog<<"#Rho T="<<temperature<<" J="<<params.J<<"\n";
 		RealType controlOld = 0;
 		for (SizeType it = 0; it < params.iterations; ++it) {
 			RealType control = calcRho1();
@@ -66,12 +65,12 @@ public:
 			}
 
 			control = (params.nMax - 1)*integralRho(params.nMax - 1);
-			clog<<it<<" "<<control<<"\n";
+			//clog<<it<<" "<<control<<"\n";
 			if (fabs(1.0 - controlOld/control) < params.errorRelative) break;
 			controlOld = control;
 		}
 
-		clog<<"#Rho-------------\n";
+		//clog<<"#Rho-------------\n";
 	}
 
 	const RealType& operator()(SizeType n, SizeType i) const

@@ -33,12 +33,11 @@ class Heisenberg {
 public:
 
 	Heisenberg(const ParametersType& params,
-	           RealType temperature,
-	           std::ostream& clog)
+	           RealType temperature)
 	    : J_(params.J),
-	      logEta_(params,temperature,clog),
+	      logEta_(params,temperature),
 	      mesh_(logEta_.mesh()),
-	      rho_(params,temperature,clog,logEta_),
+	      rho_(params,temperature,logEta_),
 	      energy_(0.25*J_),
 	      sz_(0.5)
 	{
