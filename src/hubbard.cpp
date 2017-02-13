@@ -17,6 +17,7 @@ along with BetheAnsatz. If not, see <http://www.gnu.org/licenses/>.
 */
 #include <cstdlib>
 #include <unistd.h>
+#define USE_PTHREADS_OR_NOT_NG
 #include "Vector.h"
 #include "Models/Hubbard/Grounded.h"
 #include "Models/Hubbard/GrandPotential.h"
@@ -36,43 +37,26 @@ class ParallelTemperature {
 public:
 
 	ParallelTemperature(const ParametersType& params,
-	                    const GroundedType& grounded,
-	                    SizeType threads)
+	                    const GroundedType& grounded)
 	    : params_(params), grounded_(grounded), omegaValue_(params.tt, params.mt)
-	{
-		for (SizeType i = 0; i < threads; ++i) {
-			PsimagLite::String name = filenameForThread(i);
-			unlink(name.c_str());
-		}
-	}
+	{}
 
-	void thread_function_(SizeType threadNum,
-	                      SizeType blockSize,
-	                      SizeType total,
-	                      PsimagLite::Concurrency::MutexType*)
+	SizeType tasks() const { return params_.tt; }
+
+	void doTask(SizeType taskNumber, SizeType)
 	{
 		RealType ts = (params_.te - params_.tb)/params_.tt;
 		RealType ms = (params_.me - params_.mb)/params_.mt;
 
-		PsimagLite::String name = filenameForThread(threadNum);
-		std::ofstream fout(name.c_str(),std::ios::app);
-		for (SizeType p = 0; p < blockSize; p++) {
-			SizeType i = threadNum*blockSize + p;
-			if (i >= total) break;
-			RealType t = params_.tb + i*ts;
-			for (SizeType j = 0; j < params_.mt; ++j) {
-				RealType mu = params_.mb + j*ms;
-				BetheAnsatz::GrandPotential<ParametersType> grandPotential(params_,
-				                                                           grounded_,
-				                                                           mu,
-				                                                           t,
-				                                                           fout);
-				omegaValue_(i,j) = grandPotential();
-			}
-
+		RealType t = params_.tb + taskNumber*ts;
+		for (SizeType j = 0; j < params_.mt; ++j) {
+			RealType mu = params_.mb + j*ms;
+			BetheAnsatz::GrandPotential<ParametersType> grandPotential(params_,
+			                                                           grounded_,
+			                                                           mu,
+			                                                           t);
+			omegaValue_(taskNumber,j) = grandPotential();
 		}
-
-		fout.close();
 	}
 
 	void print(std::ostream& os) const
@@ -81,11 +65,6 @@ public:
 	}
 
 private:
-
-	PsimagLite::String filenameForThread(SizeType thread) const
-	{
-		return params_.logroot + ttos(thread) + ".txt";
-	}
 
 	const ParametersType& params_;
 	const GroundedType& grounded_;
@@ -150,9 +129,9 @@ int main(int argc, char** argv)
 
 	ParallelizerType threadObject(PsimagLite::Concurrency::npthreads,
 	                              PsimagLite::MPI::COMM_WORLD);
-	ParallelTemperatureType parallelTemperature(params,grounded,nthreads);
+	ParallelTemperatureType parallelTemperature(params,grounded);
 
-	threadObject.loopCreate(params.tt,parallelTemperature);
+	threadObject.loopCreate(parallelTemperature);
 
 	parallelTemperature.print(std::cout);
 }
