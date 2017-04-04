@@ -35,7 +35,7 @@ Progress of Theoretical Physics, Vol. 46, No. 2, August 1971.
 ## Hash of the latest commit
 
 Hash of the latest commit is also posted at
-https://web.ornl.gov/~gz1/hashes.html
+https://g1257.github.com/hashes.html
 
 # Building and Running BetheAnsatz
 
