@@ -27,6 +27,11 @@ class InputCheck {
 
 public:
 
+	PsimagLite::String import() const
+	{
+		return "";
+	}
+
 	bool check(const PsimagLite::String&,
 	           const PsimagLite::Vector<PsimagLite::String>::Type&,
 	           SizeType) const
