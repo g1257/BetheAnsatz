@@ -1,4 +1,4 @@
 #ifndef BETHEANSATZ_VERSION 
-#define BETHEANSATZ_VERSION "1.06"
+#define BETHEANSATZ_VERSION "1.08"
 #endif
 
