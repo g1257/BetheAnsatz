@@ -8,7 +8,7 @@ my ($input,$data,$versusT) = @ARGV;
 defined($versusT) or die "USAGE: $0 input data 0 | 1\n";
 
 my ($tt,$tb,$te,$mt,$mb,$me);
-open(FILE,$input) or die "$0: Cannot open $input : $!\n";
+open(FILE,"<",$input) or die "$0: Cannot open $input : $!\n";
 while (<FILE>) {
 	next if (/^#/);
 	chomp;
@@ -92,7 +92,7 @@ sub readData
 {
 	my ($a,$file,$rows,$cols) = @_;
 	my $row = 0;
-	open(FILE,$file) or die "$0: Cannot open $file : $!\n";
+	open(FILE,"<",$file) or die "$0: Cannot open $file : $!\n";
 	while (<FILE>) {
 		last if (/^$rows $cols$/);
 	}
