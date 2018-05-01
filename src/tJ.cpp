@@ -69,8 +69,8 @@ int main(int argc, char** argv)
 	ParametersType params(io);
 	std::cerr<<"Echo of Parameters read from "<<filename<<"\n";
 	std::cerr<<params;
-	std::cerr<<"Threads="<<PsimagLite::Concurrency::npthreads<<"\n";
-	inputCheck.checkForThreads(PsimagLite::Concurrency::npthreads);
+	std::cerr<<"Threads="<<PsimagLite::Concurrency::codeSectionParams.npthreads<<"\n";
+	inputCheck.checkForThreads(PsimagLite::Concurrency::codeSectionParams.npthreads);
 
 	for (SizeType i = 0; i < params.densityTotal; ++i) {
 		RealType density = i*params.densityStep + params.densityBegin;
