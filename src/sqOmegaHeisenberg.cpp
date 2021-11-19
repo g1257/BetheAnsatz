@@ -1,3 +1,4 @@
+#define  USE_PTHREADS_OR_NOT_NG
 #include "Models/Heisenberg/TwoSpinonHeisenberg.h"
 #include "Models/Heisenberg/FourSpinonHeisenberg.h"
 
